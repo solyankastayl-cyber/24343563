@@ -273,18 +273,25 @@ export function FractalHybridChart({
 
 /**
  * BLOCK 73.2 — Hybrid Summary Panel with Divergence Engine
+ * BLOCK U4 — Enhanced with actual prices
  * 
  * Shows: Synthetic, Replay, and full Divergence metrics from backend
+ * Now displays both % return AND target prices
  */
 function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, divergence }) {
   if (!forecast || !currentPrice) return null;
   
-  const syntheticReturn = forecast.pricePath?.length 
-    ? ((forecast.pricePath[forecast.pricePath.length - 1] - currentPrice) / currentPrice * 100)
-    : 0;
+  // U4: Calculate both % returns AND absolute prices
+  const syntheticEndPrice = forecast.pricePath?.length 
+    ? forecast.pricePath[forecast.pricePath.length - 1]
+    : currentPrice;
+  const syntheticReturn = ((syntheticEndPrice - currentPrice) / currentPrice * 100);
     
-  const replayReturn = primaryMatch?.replayPath?.length
-    ? ((primaryMatch.replayPath[primaryMatch.replayPath.length - 1] - currentPrice) / currentPrice * 100)
+  const replayEndPrice = primaryMatch?.replayPath?.length
+    ? primaryMatch.replayPath[primaryMatch.replayPath.length - 1]
+    : null;
+  const replayReturn = replayEndPrice
+    ? ((replayEndPrice - currentPrice) / currentPrice * 100)
     : null;
   
   // Use backend divergence metrics if available
@@ -307,12 +314,24 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
   
   // Has warnings?
   const hasWarnings = flags.length > 0 && !flags.includes('PERFECT_MATCH');
+  
+  // U4: Format price with K suffix for readability
+  const formatPrice = (p) => {
+    if (!p || isNaN(p)) return '—';
+    if (p >= 1000000) return `$${(p / 1000000).toFixed(2)}M`;
+    if (p >= 1000) return `$${(p / 1000).toFixed(1)}K`;
+    return `$${p.toFixed(0)}`;
+  };
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
         <span style={styles.title}>HYBRID PROJECTION</span>
         <span style={styles.subtitle}>{focus.toUpperCase()} Horizon</span>
+        {/* U4: Current Price Reference */}
+        <span style={styles.currentPrice}>
+          NOW: {formatPrice(currentPrice)}
+        </span>
         {/* Grade badge */}
         {score !== null && (
           <span style={{
@@ -325,7 +344,7 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
       </div>
       
       <div style={styles.grid}>
-        {/* Synthetic Column */}
+        {/* Synthetic Column - U4: Added price */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>
             <span style={{ ...styles.dot, backgroundColor: '#22c55e' }}></span>
@@ -334,10 +353,14 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
           <div style={{ ...styles.value, color: syntheticReturn >= 0 ? '#22c55e' : '#ef4444' }}>
             {syntheticReturn >= 0 ? '+' : ''}{syntheticReturn.toFixed(1)}%
           </div>
+          {/* U4: Target Price */}
+          <div style={styles.priceTarget}>
+            {formatPrice(syntheticEndPrice)}
+          </div>
           <div style={styles.label}>Model Projection</div>
         </div>
         
-        {/* Replay Column */}
+        {/* Replay Column - U4: Added price */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>
             <span style={{ ...styles.dot, backgroundColor: '#8b5cf6' }}></span>
@@ -347,6 +370,10 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
             <>
               <div style={{ ...styles.value, color: replayReturn >= 0 ? '#22c55e' : '#ef4444' }}>
                 {replayReturn >= 0 ? '+' : ''}{replayReturn.toFixed(1)}%
+              </div>
+              {/* U4: Target Price */}
+              <div style={styles.priceTarget}>
+                {formatPrice(replayEndPrice)}
               </div>
               <div style={styles.label}>
                 {primaryMatch?.id || 'Historical'} ({primaryMatch?.selectionScore 
