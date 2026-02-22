@@ -540,6 +540,17 @@ const FractalTerminal = () => {
         <div className="mt-6">
           <ForwardPerformancePanel />
         </div>
+        
+        {/* SYSTEM STATUS PANEL — Bottom of page */}
+        <SystemStatusPanel
+          phaseSnapshot={terminalData?.phaseSnapshot}
+          consensusPulse={consensusPulse}
+          meta={meta}
+          diagnostics={diagnostics}
+          matchesCount={matchesCount}
+          dataStatus={focusError ? 'error' : focusLoading ? 'loading' : 'real'}
+          className="mt-6"
+        />
       </main>
     </div>
   );
