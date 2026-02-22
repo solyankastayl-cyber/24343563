@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Fractal Chart Margin & Forecast Zone Testing
-Testing the specific fixes mentioned in review request:
-- Chart margins increased (top: 36, right: 350)  
-- Forecast zone width increased (420px)
-- ScenarioBox and RiskBox components
+Backend API Test for Fractal UX Refactor
+Testing the /api/fractal/v2.1/chart endpoint and related APIs for UX improvements:
+- Chart data availability
+- API response structure
+- Error handling
 """
 
 import requests
@@ -12,8 +12,8 @@ import json
 import sys
 from datetime import datetime
 
-class FractalChartTester:
-    def __init__(self, base_url="https://fractal-dev-3.preview.emergentagent.com"):
+class FractalBackendTester:
+    def __init__(self, base_url="https://fractal-core-branch.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
