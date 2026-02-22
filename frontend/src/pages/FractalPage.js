@@ -424,39 +424,42 @@ const FractalTerminal = () => {
               </>
             )}
           </div>
+        </div>
 
-          {/* U6 + U7: Scenarios and Risk Box side by side */}
-          {!isLoading && (scenario || sizing) && (
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* U6: Scenario Box */}
-              {scenario && (
-                <ScenarioBox scenario={scenario} />
-              )}
-              
-              {/* U7: Risk Box */}
-              <RiskBox 
-                scenario={scenario}
-                volatility={volatility}
-                sizing={sizing}
-                constitution={terminalData?.decisionKernel?.constitution}
-                driftStatus={terminalData?.drift?.status}
-              />
-            </div>
-          )}
+      {/* Panels Section */}
+      <main className="max-w-7xl mx-auto px-6 py-6">
+        {/* U6 + U7: Scenarios and Risk Box side by side */}
+        {!isLoading && (scenario || sizing) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* U6: Scenario Box */}
+            {scenario && (
+              <ScenarioBox scenario={scenario} />
+            )}
+            
+            {/* U7: Risk Box */}
+            <RiskBox 
+              scenario={scenario}
+              volatility={volatility}
+              sizing={sizing}
+              constitution={terminalData?.decisionKernel?.constitution}
+              driftStatus={terminalData?.drift?.status}
+            />
+          </div>
+        )}
 
-          {/* BLOCK 70.2: Focus-specific panels */}
-          {!isLoading && focusData && (
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Forecast Summary */}
-              <ForecastSummary forecast={forecast} meta={meta} />
-              
-              {/* Distribution Stats */}
-              <DistributionStats overlay={overlay} />
-              
-              {/* Matches List */}
-              <MatchesList matches={overlay?.matches} focus={focus} />
-            </div>
-          )}
+        {/* BLOCK 70.2: Focus-specific panels */}
+        {!isLoading && focusData && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Forecast Summary */}
+            <ForecastSummary forecast={forecast} meta={meta} />
+            
+            {/* Distribution Stats */}
+            <DistributionStats overlay={overlay} />
+            
+            {/* Matches List */}
+            <MatchesList matches={overlay?.matches} focus={focus} />
+          </div>
+        )}
 
           {/* BLOCK 73.6: Phase Performance Heatmap */}
           {!isLoading && (
