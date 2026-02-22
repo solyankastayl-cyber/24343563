@@ -30,37 +30,32 @@ export default function ForwardPerformancePanel() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    
+    const controller = new AbortController();
+    
     try {
       const apiUrl = process.env.REACT_APP_BACKEND_URL || '';
       const url = `${apiUrl}/api/fractal/v2.1/admin/forward-equity?symbol=BTC&preset=${preset}&horizon=${horizon}&role=${role}`;
-      const res = await fetch(url);
       
-      // Get text first to avoid "body already read" issues
-      const text = await res.text();
+      const res = await fetch(url, { signal: controller.signal });
+      const json = await res.json();
       
-      // Try to parse as JSON
-      let json;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        setError(`Invalid response: ${text.substring(0, 100)}`);
-        return;
-      }
-      
-      if (!res.ok) {
+      if (!res.ok || json.error) {
         setError(json.message || json.error || `HTTP ${res.status}`);
-        return;
-      }
-      
-      if (json.error) {
-        setError(json.message || 'Unknown error');
+        setData(null);
       } else {
         setData(json);
+        setError(null);
       }
     } catch (err) {
-      setError(err.message);
+      if (err.name !== 'AbortError') {
+        setError(err.message || 'Failed to fetch');
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+    
+    return () => controller.abort();
   }, [preset, horizon, role]);
 
   useEffect(() => {
