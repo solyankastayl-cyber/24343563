@@ -1,0 +1,55 @@
+{
+  "summary": "Completed comprehensive testing of L4.2 Auto Warmup Starter and U2 As-of Date Picker features. Backend shows 11-step pipeline working correctly with AUTO_WARMUP step. Frontend As-of Date Picker is fully functional with simulation mode switching.",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "L4.2: POST /api/ops/daily-run/run-now now has 11 steps (was 10) including AUTO_WARMUP step 5",
+    "L4.2: AUTO_WARMUP step logic working correctly - BTC skipped (already APPLIED), SPX skipped (DEV mode)",
+    "L4.2: AUTO_WARMUP step provides detailed reason in response (e.g., 'Already in APPLIED', 'Not in PROD mode')",
+    "L4.2: Pipeline step order correct: SNAPSHOT_WRITE → OUTCOME_RESOLVE → LIVE_SAMPLE_UPDATE → DRIFT_CHECK → AUTO_WARMUP → LIFECYCLE_HOOKS → WARMUP_PROGRESS_WRITE → AUTO_PROMOTE → INTEL_TIMELINE_WRITE → ALERTS_DISPATCH → INTEGRITY_GUARD",
+    "U2: As-of Date Picker component renders correctly on FractalPage header",
+    "U2: As-of Date Picker dropdown opens and shows Live/Simulation mode toggle buttons",
+    "U2: Simulation mode shows date input field and preset buttons (1M ago, 3M ago, 6M ago, 1Y ago)",
+    "U2: Preset buttons correctly set date input values (e.g., 1M ago sets 2026-01-23)",
+    "U2: Run Simulation button triggers API call with asOf parameter",
+    "U2: UI correctly shows simulation mode with SIM badge and formatted date",
+    "U2: API /api/fractal/v2.1/focus-pack correctly accepts asOf parameter",
+    "U2: useFocusPack hook sends asOf parameter in API requests when in simulation mode",
+    "U2: Chart mode switching works (Price/Replay/Hybrid modes)",
+    "U2: Mode switching between Live and Simulation updates UI state correctly",
+    "Backend: All 34 daily-run tests pass (100% success rate)",
+    "Backend: Step timing captured for all 11 steps",
+    "Backend: Lifecycle before/after states captured correctly",
+    "Backend: Invalid asset validation working",
+    "Backend: Daily run history and status endpoints working",
+    "Frontend: All UI interactions working without errors"
+  ],
+  
+  "test_report_links": [
+    "/app/backend_test_daily_run.py"
+  ],
+  
+  "action_item_for_main_agent": "",
+  
+  "updated_files": [
+    "/app/backend_test_daily_run.py"
+  ],
+  
+  "success_percentage": {
+    "backend": "100% (34/34 tests passed)",
+    "frontend": "100% (All U2 features working correctly)"
+  },
+  
+  "should_call_test_agent_after_fix": "false",
+  "should_main_agent_test_itself": "false"
+}
