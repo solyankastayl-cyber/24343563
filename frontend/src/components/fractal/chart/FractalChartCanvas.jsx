@@ -565,12 +565,25 @@ export function FractalChartCanvas({
   const hoverPhaseName = hoverCandle && chart?.phaseZones?.find(
     z => hoverCandle.t >= z.from && hoverCandle.t <= z.to
   )?.phase;
+  
+  // U4: Get current price for forecast tooltip
+  const currentPrice = chart?.candles?.[chart.candles.length - 1]?.c || forecast?.currentPrice;
 
   return (
     <div style={{ position: "relative" }}>
       <canvas ref={ref} style={{ cursor: "crosshair" }} />
+      {/* Historical data tooltip */}
       {hoverCandle && (
         <Tooltip candle={hoverCandle} sma={hoverSma} phase={hoverPhaseName} />
+      )}
+      {/* U4: Forecast zone tooltip */}
+      {forecastHoverDay >= 0 && forecastHoverData && (
+        <ForecastTooltip 
+          day={forecastHoverDay}
+          forecastData={forecastHoverData}
+          currentPrice={currentPrice}
+          horizonDays={horizonDays}
+        />
       )}
       {/* BLOCK 73.5.1: Phase Tooltip */}
       <PhaseTooltip 
