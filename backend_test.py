@@ -490,7 +490,7 @@ class FractalAPITester:
         return success, data
 
 def main():
-    print("🚀 Starting Fractal Module Backend API Testing...")
+    print("🚀 Starting Fractal Module U6 Backend API Testing...")
     print("=" * 60)
     
     # Use the public endpoint
@@ -499,7 +499,12 @@ def main():
     # Run all tests
     results = {}
     
-    # U3 Tests
+    # U6 Tests - Scenarios 2.0
+    results['u6_scenario_structure'] = tester.test_u6_scenario_pack_structure()
+    results['u6_different_horizons'] = tester.test_u6_different_horizons_scenarios()
+    results['u6_data_status'] = tester.test_u6_data_status_real_vs_fallback()
+    
+    # Previous tests (keeping for regression testing)
     results['u3_multi_horizon'] = tester.test_focus_pack_7d_vs_365d()
     results['u3_horizon_field'] = tester.test_horizon_field_in_meta()
     results['u3_data_status'] = tester.test_data_status_logic()
