@@ -28,6 +28,7 @@ const MODES = [
   { key: 'price', label: 'Synthetic', description: 'AI model projection based on current structure' },
   { key: 'replay', label: 'Replay', description: 'Historical fractal pattern matching' },
   { key: 'hybrid', label: 'Hybrid', description: 'Combined synthetic + replay analysis' },
+  { key: 'spx', label: 'SPX & BTC', description: 'S&P 500 correlation with Bitcoin analysis' },
 ];
 
 /**
