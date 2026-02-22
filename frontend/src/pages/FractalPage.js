@@ -440,10 +440,22 @@ const FractalTerminal = () => {
             )}
           </div>
 
-          {/* U6: Scenario Box - Expected Outcomes */}
-          {!isLoading && scenario && (
-            <div className="mt-6">
-              <ScenarioBox scenario={scenario} />
+          {/* U6 + U7: Scenarios and Risk Box side by side */}
+          {!isLoading && (scenario || sizing) && (
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* U6: Scenario Box */}
+              {scenario && (
+                <ScenarioBox scenario={scenario} />
+              )}
+              
+              {/* U7: Risk Box */}
+              <RiskBox 
+                scenario={scenario}
+                volatility={volatility}
+                sizing={sizing}
+                constitution={terminalData?.decisionKernel?.constitution}
+                driftStatus={terminalData?.drift?.status}
+              />
             </div>
           )}
 
