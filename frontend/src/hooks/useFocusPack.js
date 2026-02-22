@@ -179,6 +179,8 @@ export function useFocusPack(symbol = 'BTC', focus = '30d', options = {}) {
     tier: data?.meta?.tier,
     aftermathDays: data?.meta?.aftermathDays,
     matchesCount: data?.overlay?.matches?.length || 0,
+    // U6: Scenario pack
+    scenario: data?.scenario,
   };
 }
 
