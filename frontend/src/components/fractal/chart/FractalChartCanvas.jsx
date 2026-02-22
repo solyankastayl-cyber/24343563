@@ -398,49 +398,7 @@ export function FractalChartCanvas({
         }
       }
       
-      // C) Tail Risk hover detection - check if near the tail risk line
-      if (forecast?.tailFloor && mx > xRightAnchor && mx < xRightAnchor + forecastZoneWidth) {
-        // Calculate Y position of tail risk line (need to match drawForecast calculation)
-        const candles = chart.candles;
-        let minY = Infinity, maxY = -Infinity;
-        for (const c of candles) {
-          if (c.l < minY) minY = c.l;
-          if (c.h > maxY) maxY = c.h;
-        }
-        if (forecast?.pricePath?.length) {
-          for (let i = 0; i < forecast.pricePath.length; i++) {
-            const upper = forecast.upperBand?.[i];
-            const lower = forecast.lowerBand?.[i];
-            if (upper && upper > maxY) maxY = upper;
-            if (lower && lower < minY) minY = lower;
-          }
-          if (forecast.tailFloor < minY) minY = forecast.tailFloor;
-        }
-        // Add padding
-        const range = maxY - minY;
-        minY -= range * 0.08;
-        maxY += range * 0.08;
-        
-        // Calculate tail Y position
-        const plotH = height - margins.top - margins.bottom;
-        const tailY = margins.top + ((maxY - forecast.tailFloor) / (maxY - minY)) * plotH;
-        
-        // Check if mouse is near tail risk line (within 15px vertically)
-        if (Math.abs(my - tailY) < 15) {
-          setTailRiskHover({
-            price: forecast.tailFloor,
-            horizon: focus?.toUpperCase() || '30D',
-            sampleSize: forecast.stats?.matchCount || forecast.matchCount || null,
-            dataMode: forecast.stats?.dataMode || forecast.dataMode || null
-          });
-          setTailRiskTooltipPos({ x: e.clientX, y: e.clientY });
-          setForecastHoverDay(-1);
-          setForecastHoverData(null);
-          return;
-        }
-      }
-      
-      // Reset tail risk hover
+      // Reset tail risk hover when outside forecast zone
       setTailRiskHover(null);
       
       // Reset forecast hover when not in forecast zone
