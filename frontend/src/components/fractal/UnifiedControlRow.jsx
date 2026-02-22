@@ -265,12 +265,12 @@ function HorizonTabs({ focus, onChange, loading }) {
 }
 
 /**
- * Main Unified Control Row v2
+ * Main Unified Control Row v3
  */
 export function UnifiedControlRow({
   signal = 'HOLD',
   confidence = 'Medium',
-  marketMode = 'Accumulation',
+  marketMode = 'ACCUMULATION',
   risk = 'Normal',
   chartMode = 'price',
   onModeChange,
@@ -280,11 +280,11 @@ export function UnifiedControlRow({
 }) {
   return (
     <div 
-      className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200"
+      className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200"
       data-testid="unified-control-row"
     >
-      {/* LEFT: Signal Status */}
-      <SignalBadge 
+      {/* LEFT: Status Block (Primary + Secondary) */}
+      <StatusBlock 
         signal={signal}
         confidence={confidence}
         marketMode={marketMode}
