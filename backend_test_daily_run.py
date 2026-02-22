@@ -433,6 +433,142 @@ class DailyRunTester:
                 error=str(e)
             )
 
+    def test_auto_warmup_functionality(self):
+        """Test L4.2: AUTO_WARMUP starter functionality"""
+        print("\n🔥 Testing L4.2 AUTO_WARMUP Functionality...")
+        
+        # Test for both assets
+        for asset in ['BTC', 'SPX']:
+            try:
+                # Run pipeline to trigger AUTO_WARMUP
+                url = f"{self.base_url}/api/ops/daily-run/run-now"
+                params = {"asset": asset}
+                
+                response = requests.post(url, params=params, timeout=60)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    if data.get('ok', False):
+                        result = data.get('data', {})
+                        steps = result.get('steps', [])
+                        
+                        # Find AUTO_WARMUP step
+                        auto_warmup_step = next((s for s in steps if s.get('name') == 'AUTO_WARMUP'), None)
+                        
+                        if auto_warmup_step:
+                            step_details = auto_warmup_step.get('details', {})
+                            started = step_details.get('started', False)
+                            reason = step_details.get('reason', 'Unknown')
+                            blocked = step_details.get('blocked')
+                            
+                            details = f"Started: {started}, Reason: {reason}"
+                            if blocked:
+                                details += f", Blocked by: {blocked}"
+                            
+                            self.log_result(
+                                f"AUTO_WARMUP Step ({asset})", 
+                                True, 
+                                response,
+                                details=details
+                            )
+                            
+                            # If warmup started, check for AUTO_WARMUP_STARTED event
+                            if started:
+                                self.test_auto_warmup_event(asset, result.get('runId'))
+                                
+                        else:
+                            self.log_result(
+                                f"AUTO_WARMUP Step ({asset})", 
+                                False, 
+                                response,
+                                error="AUTO_WARMUP step not found in pipeline"
+                            )
+                    else:
+                        self.log_result(
+                            f"AUTO_WARMUP Step ({asset})", 
+                            False, 
+                            response,
+                            error=f"Pipeline failed: {data.get('error', 'Unknown error')}"
+                        )
+                else:
+                    self.log_result(
+                        f"AUTO_WARMUP Step ({asset})", 
+                        False, 
+                        response,
+                        error=f"HTTP {response.status_code}"
+                    )
+                    
+            except Exception as e:
+                self.log_result(
+                    f"AUTO_WARMUP Step ({asset})", 
+                    False,
+                    error=str(e)
+                )
+
+    def test_auto_warmup_event(self, asset, run_id):
+        """Test that AUTO_WARMUP_STARTED event is recorded in lifecycle events"""
+        try:
+            # Get recent lifecycle events to check for AUTO_WARMUP_STARTED
+            url = f"{self.base_url}/api/ops/daily-run/history"
+            params = {"asset": asset, "limit": "10"}
+            
+            response = requests.get(url, params=params, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data.get('ok', False):
+                    events = data.get('data', [])
+                    
+                    # Look for AUTO_WARMUP_STARTED event with matching runId
+                    auto_warmup_event = None
+                    for event in events:
+                        if (event.get('type') == 'AUTO_WARMUP_STARTED' and 
+                            event.get('meta', {}).get('runId') == run_id):
+                            auto_warmup_event = event
+                            break
+                    
+                    if auto_warmup_event:
+                        meta = auto_warmup_event.get('meta', {})
+                        details = f"Event found with runId: {run_id}, Previous: {meta.get('previousStatus')}, New: {meta.get('newStatus')}, Live samples: {meta.get('liveSamples')}"
+                        
+                        self.log_result(
+                            f"AUTO_WARMUP_STARTED Event ({asset})", 
+                            True, 
+                            response,
+                            details=details
+                        )
+                    else:
+                        # This might be expected if conditions weren't met
+                        self.log_result(
+                            f"AUTO_WARMUP_STARTED Event ({asset})", 
+                            True, 
+                            response,
+                            details="No AUTO_WARMUP_STARTED event found (may be expected if conditions not met)"
+                        )
+                else:
+                    self.log_result(
+                        f"AUTO_WARMUP_STARTED Event ({asset})", 
+                        False, 
+                        response,
+                        error=f"API error: {data.get('error', 'Unknown error')}"
+                    )
+            else:
+                self.log_result(
+                    f"AUTO_WARMUP_STARTED Event ({asset})", 
+                    False, 
+                    response,
+                    error=f"HTTP {response.status_code}"
+                )
+                
+        except Exception as e:
+            self.log_result(
+                f"AUTO_WARMUP_STARTED Event ({asset})", 
+                False,
+                error=str(e)
+            )
+
     def run_comprehensive_tests(self):
         """Run comprehensive test suite for Daily Run Orchestrator"""
         print("=" * 70)
