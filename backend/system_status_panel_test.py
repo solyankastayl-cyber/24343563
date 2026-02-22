@@ -130,7 +130,7 @@ class SystemStatusPanelTester:
 
     def test_consensus_pulse_api(self, symbol="BTC", days=7):
         """Test consensus pulse API endpoint for SystemStatusPanel"""
-        url = f"{self.base_url}/api/fractal/v2.1/consensus/pulse"
+        url = f"{self.base_url}/api/fractal/v2.1/consensus-pulse"
         params = {"symbol": symbol, "days": days}
         
         try:
