@@ -337,6 +337,16 @@ const FractalTerminal = () => {
       
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-6">
+        {/* BLOCK U5: Human-friendly Signal Header */}
+        <SignalHeader 
+          consensus={consensus}
+          conflict={conflict}
+          volatility={volatility}
+          phaseSnapshot={terminalData?.phaseSnapshot}
+          diagnostics={diagnostics}
+          overlay={overlay}
+        />
+        
         {/* BLOCK 76.1: Consensus Pulse Strip - 7d Intelligence */}
         <div className="mb-4 flex flex-wrap items-center gap-4">
           <ConsensusPulseStrip symbol={symbol} />
@@ -352,16 +362,19 @@ const FractalTerminal = () => {
             loading={isLoading}
           />
           
-          {/* BLOCK U3: Data Status Indicator */}
+          {/* BLOCK U3: Data Status Indicator (Enhanced) */}
           <div className="mt-2 flex items-center gap-4">
             <DataStatusIndicator 
               status={focusError ? 'error' : focusLoading ? 'loading' : 'unknown'}
+              reason={focusError}
               meta={meta}
               matchesCount={matchesCount}
-              quality={diagnostics?.quality}
-              coverage={diagnostics?.coverage}
+              quality={diagnostics?.qualityScore}
+              coverage={diagnostics?.coverageYears}
+              horizon={focus}
+              sampleSize={diagnostics?.sampleSize}
             />
-            {meta && (
+            {meta && !focusLoading && (
               <span className="text-xs text-slate-400">
                 Window: {meta.windowLen}d · Aftermath: {meta.aftermathDays}d · 
                 Matches: {matchesCount} · Sample: {diagnostics?.sampleSize || matchesCount}
