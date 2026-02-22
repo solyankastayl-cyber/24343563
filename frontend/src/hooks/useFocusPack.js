@@ -92,6 +92,10 @@ export function useFocusPack(symbol = 'BTC', focus = '30d', options = {}) {
       if (currentPhaseId) {
         url += `&phaseId=${encodeURIComponent(currentPhaseId)}`;
       }
+      // BLOCK U2: As-of date support
+      if (currentAsOf) {
+        url += `&asOf=${encodeURIComponent(currentAsOf)}`;
+      }
       
       const response = await fetch(url, { signal });
       
@@ -123,12 +127,19 @@ export function useFocusPack(symbol = 'BTC', focus = '30d', options = {}) {
     } finally {
       setLoading(false);
     }
-  }, [symbol, focus, phaseId]);
+  }, [symbol, focus, phaseId, asOf]);
   
   // BLOCK 73.5.2: Refetch with new phaseId
   const filterByPhase = useCallback((newPhaseId) => {
-    setPhaseId(newPhaseId);
+    setPhaseIdState(newPhaseId);
     fetchFocusPack(newPhaseId);
+  }, [fetchFocusPack]);
+  
+  // BLOCK U2: Set as-of date
+  const setAsOf = useCallback((newAsOf) => {
+    setAsOfState(newAsOf);
+    setMode(newAsOf ? 'simulation' : 'auto');
+    fetchFocusPack(undefined, newAsOf);
   }, [fetchFocusPack]);
   
   useEffect(() => {
@@ -143,7 +154,7 @@ export function useFocusPack(symbol = 'BTC', focus = '30d', options = {}) {
   
   // Reset phaseId when focus changes
   useEffect(() => {
-    setPhaseId(null);
+    setPhaseIdState(null);
   }, [focus]);
   
   return {
@@ -155,6 +166,11 @@ export function useFocusPack(symbol = 'BTC', focus = '30d', options = {}) {
     phaseId,
     setPhaseId: filterByPhase,
     phaseFilter: data?.phaseFilter,
+    // BLOCK U2: As-of date controls
+    asOf,
+    setAsOf,
+    mode,
+    setMode,
     // Computed helpers
     meta: data?.meta,
     overlay: data?.overlay,
