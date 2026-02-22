@@ -35,6 +35,7 @@ import SpxDecadeTrackerTab from './SpxDecadeTrackerTab';
 import SpxRegimesTab from './SpxRegimesTab';
 import SpxConstitutionTab from './SpxConstitutionTab';
 import SpxGovernanceTab from './SpxGovernanceTab';
+import LifecycleTab from './LifecycleTab';
 import { AssetSelector } from '../AssetSelector';
 
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
