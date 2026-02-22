@@ -27,6 +27,7 @@ import { registerSpxGuardrailsRoutes } from './modules/spx-guardrails/spx-guardr
 import { registerSpxCrisisRoutes, registerSpxCrisisDebugRoutes } from './modules/spx-crisis/spx-crisis.routes.js';
 import { registerSpxRegimeRoutes } from './modules/spx-regime/regime.routes.js';
 import { registerLifecycleRoutes } from './modules/lifecycle/lifecycle.routes.js';
+import { registerDailyRunRoutes } from './modules/ops/daily-run/index.js';
 
 async function main() {
   console.log('═══════════════════════════════════════════════════════════════');
