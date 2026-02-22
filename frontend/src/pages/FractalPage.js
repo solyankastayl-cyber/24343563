@@ -302,6 +302,9 @@ const FractalTerminal = () => {
   const horizonStack = terminalData?.horizonStack;
   const consensus74 = terminalData?.consensus74;
   
+  // Fetch consensus pulse data
+  const { data: consensusPulse } = useConsensusPulse(symbol, 7);
+
   const isLoading = focusLoading || terminalLoading;
   const tierColor = meta ? getTierColor(meta.tier) : '#6B7280';
 
@@ -316,9 +319,6 @@ const FractalTerminal = () => {
               <span className="px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
                 {symbol}
               </span>
-              {meta && (
-                <FocusStatsBadge meta={meta} overlay={overlay} />
-              )}
             </div>
             <div className="flex items-center gap-3">
               {/* BLOCK U2: As-of Date Picker */}
@@ -349,48 +349,25 @@ const FractalTerminal = () => {
           overlay={overlay}
         />
         
-        {/* BLOCK 76.1: Consensus Pulse Strip - 7d Intelligence */}
-        <div className="mb-4 flex flex-wrap items-center gap-4">
-          <ConsensusPulseStrip symbol={symbol} />
-          {/* BLOCK 76.3: Phase Strength Indicator */}
-          <PhaseStrengthBadge phaseSnapshot={terminalData?.phaseSnapshot} />
-        </div>
+        {/* UNIFIED SYSTEM STATUS PANEL — Replaces multiple duplicate strips */}
+        <SystemStatusPanel
+          phaseSnapshot={terminalData?.phaseSnapshot}
+          consensusPulse={consensusPulse}
+          meta={meta}
+          diagnostics={diagnostics}
+          matchesCount={matchesCount}
+          dataStatus={focusError ? 'error' : focusLoading ? 'loading' : 'real'}
+          className="mb-6"
+        />
         
-        {/* BLOCK 70.2: Horizon Selector - Controls EVERYTHING */}
+        {/* BLOCK 70.2: Horizon Selector */}
         <div className="mb-6">
           <HorizonSelector 
             focus={focus}
             onFocusChange={setFocus}
             loading={isLoading}
           />
-          
-          {/* BLOCK U3: Data Status Indicator (Enhanced) */}
-          <div className="mt-2 flex items-center gap-4">
-            <DataStatusIndicator 
-              status={focusError ? 'error' : focusLoading ? 'loading' : 'unknown'}
-              reason={focusError}
-              meta={meta}
-              matchesCount={matchesCount}
-              quality={diagnostics?.qualityScore}
-              coverage={diagnostics?.coverageYears}
-              horizon={focus}
-              sampleSize={diagnostics?.sampleSize}
-            />
-            {meta && !focusLoading && (
-              <span className="text-xs text-slate-400">
-                Window: {meta.windowLen}d · Aftermath: {meta.aftermathDays}d · 
-                Matches: {matchesCount} · Sample: {diagnostics?.sampleSize || matchesCount}
-              </span>
-            )}
-          </div>
         </div>
-        
-        {/* Focus Info Panel */}
-        {meta && (
-          <div className="mb-4">
-            <FocusInfoPanel meta={meta} diagnostics={diagnostics} overlay={overlay} />
-          </div>
-        )}
         
         {/* Chart Section */}
         <div className="bg-white rounded-xl border border-slate-200 p-6">
