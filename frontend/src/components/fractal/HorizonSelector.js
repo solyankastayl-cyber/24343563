@@ -78,20 +78,20 @@ export const HorizonSelector = ({
       {/* Tier legend with explanations */}
       <div className="flex items-center justify-between px-2 text-xs">
         <span className="text-slate-500 font-medium">
-          {getTierLabel(HORIZONS.find(h => h.key === focus)?.tier)} View
+          {getTierLabel(HORIZONS.find(h => h.key === focus)?.tier)}
         </span>
         <div className="flex gap-4">
           <span className="flex items-center gap-1.5" title="Short-term entry timing (7-14 days)">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('TIMING') }}/>
-            <span className="text-slate-500">Timing (Entry)</span>
+            <span className="text-slate-500">Timing</span>
           </span>
           <span className="flex items-center gap-1.5" title="Medium-term position management (30-90 days)">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('TACTICAL') }}/>
-            <span className="text-slate-500">Tactical (Position)</span>
+            <span className="text-slate-500">Tactical</span>
           </span>
           <span className="flex items-center gap-1.5" title="Long-term structural bias (180-365 days)">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('STRUCTURE') }}/>
-            <span className="text-slate-500">Structure (Bias)</span>
+            <span className="text-slate-500">Structure</span>
           </span>
         </div>
       </div>
