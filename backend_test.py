@@ -122,7 +122,8 @@ class FractalAPITester:
         )
         
         if success and data:
-            meta = data.get('meta', {})
+            focus_pack = data.get('focusPack', data)
+            meta = focus_pack.get('meta', {})
             horizon = meta.get('horizon')
             focus = meta.get('focus')
             
