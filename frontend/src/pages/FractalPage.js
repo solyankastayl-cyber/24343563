@@ -281,17 +281,49 @@ const FractalTerminal = () => {
 
   // Fetch legacy terminal data (for volatility, sizing, etc.)
   useEffect(() => {
-    setTerminalLoading(true);
-    fetch(`${API_BASE}/api/fractal/v2.1/terminal?symbol=${symbol}&set=extended&focus=${focus}`)
-      .then(r => r.json())
-      .then(d => {
-        setTerminalData(d);
-        setTerminalLoading(false);
-      })
-      .catch(err => {
-        console.error('[Terminal] Fetch error:', err);
-        setTerminalLoading(false);
-      });
+    let cancelled = false;
+    const controller = new AbortController();
+    
+    const fetchTerminal = async () => {
+      setTerminalLoading(true);
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/fractal/v2.1/terminal?symbol=${symbol}&set=extended&focus=${focus}`,
+          { signal: controller.signal }
+        );
+        
+        if (cancelled) return;
+        
+        // Check if response is ok before parsing
+        if (!res.ok) {
+          console.error('[Terminal] HTTP error:', res.status);
+          setTerminalData(null);
+          setTerminalLoading(false);
+          return;
+        }
+        
+        const data = await res.json();
+        
+        if (cancelled) return;
+        
+        setTerminalData(data);
+      } catch (err) {
+        if (!cancelled && err.name !== 'AbortError') {
+          console.error('[Terminal] Fetch error:', err);
+        }
+      } finally {
+        if (!cancelled) {
+          setTerminalLoading(false);
+        }
+      }
+    };
+    
+    fetchTerminal();
+    
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [symbol, focus]);
 
   const volatility = terminalData?.volatility;
