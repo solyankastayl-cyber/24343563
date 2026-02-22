@@ -185,7 +185,7 @@ class SystemStatusPanelTester:
 
     def test_focus_pack_api(self, symbol="BTC", focus="30d"):
         """Test focus pack API for Projection Context data"""
-        url = f"{self.base_url}/api/fractal/v2.1/focus"
+        url = f"{self.base_url}/api/fractal/v2.1/focus-pack"
         params = {"symbol": symbol, "focus": focus}
         
         try:
