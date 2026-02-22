@@ -47,3 +47,26 @@ UX-рефакторинг модуля Fractal: улучшение Hybrid Dual V
 ## Next Tasks
 - Тестирование на production данных
 - Получить feedback от пользователей
+
+## Session 2: System Status Panel (Jan 2026)
+
+**Task:** Объединить дублирующиеся блоки в один System Status Panel
+
+**Completed:**
+1. **SystemStatusPanel** — единая панель с 3 колонками:
+   - Market State: Phase, Consensus, Sync State, Structure Weight, Divergence
+   - Projection Context: Focus, Window, Aftermath, Matches, Sample, Coverage, Quality
+   - Data Status: Real/Fallback badge, match count, confidence level
+
+2. **Удалено дублирование:**
+   - ConsensusPulseStrip (перенесено в SystemStatusPanel)
+   - FocusInfoPanel (перенесено в SystemStatusPanel)
+   - DataStatusIndicator inline (перенесено в SystemStatusPanel)
+   - Строки Window/Aftermath/Matches/Sample под HorizonSelector
+
+3. **Исправлено:**
+   - "Tactical View View" → "Tactical View"
+   - Phase "UNKNOWN" → правильное извлечение phaseSnapshot.phase
+
+**Known Issues:**
+- focus-pack API возвращает 520 error (не критично, данные загружаются через terminal endpoint)
