@@ -1,72 +1,82 @@
-# Fractal Admin — L2 Lifecycle UI + Diagnostics
+# Fractal Admin — Lifecycle Engine (L2+L3)
 
 ## Original Problem Statement
-Клонировать репозиторий, поднять фронт, бэк, админку. Работать только с областью Fractal. Реализовать BLOCK L2 — Lifecycle UI + Diagnostics.
+Реализовать L3 блоки для Lifecycle Management:
+- L3.1 Constitution Binding
+- L3.2 Drift Auto-Revoke
+- L3.3 Drift Recovery
+- L3.4 State Integrity Guard
+- L3.5 Auto-Promotion
 
 ## Architecture
-- **Backend**: FastAPI-like TypeScript (Fastify) на порту 8001
+- **Backend**: TypeScript (Fastify) на порту 8001
 - **Frontend**: React + TailwindCSS на порту 3000
 - **Database**: MongoDB (fractal_dev)
 
-## Tech Stack
-- Backend: TypeScript, Fastify, Mongoose, MongoDB
-- Frontend: React 19, TailwindCSS, Lucide React icons
-- Entry point: `yarn fractal` (src/app.fractal.ts)
+## What's Been Implemented
 
-## What's Been Implemented (Feb 22, 2026)
-
-### L2 Lifecycle Engine (Backend)
-- `/api/lifecycle/state` — Combined state for UI (BTC + SPX + Combined readiness)
+### L2 — Lifecycle Observability (Feb 22, 2026)
+- `/api/lifecycle/state` — Combined state for UI
 - `/api/lifecycle/events` — Timeline events with filtering
-- `/api/lifecycle/diagnostics` — Model diagnostics
-- `/api/lifecycle/actions/force-warmup` — Start warmup period
-- `/api/lifecycle/actions/force-apply` — Force apply model
-- `/api/lifecycle/actions/revoke` — Revoke applied model
-- `/api/lifecycle/actions/reset-simulation` — Reset to simulation (DEV only)
-- `/api/lifecycle/init` — Initialize default states for BTC/SPX
+- `/api/lifecycle/actions/*` — Manual lifecycle actions
+- LifecycleTab UI с карточками BTC/SPX, Combined Mode, Timeline
 
-### L2 Lifecycle UI (Frontend)
-- **LifecycleTab.jsx** — Main lifecycle management tab
-- **CombinedStatusCard** — Shows Combined mode readiness and blockers
-- **LifecycleCard** — Per-model cards (BTC/SPX) with:
-  - Status badges (SIMULATION, WARMUP, APPLIED, REVOKED)
-  - System mode (DEV/PROD)
-  - Live samples progress (0/30)
-  - Drift severity indicator
-  - Warmup progress bar
-  - Action buttons
-- **LifecycleTimeline** — Event audit trail with filtering
+### L3 — Governance Hooks (Feb 22, 2026)
 
-### Files Modified/Created
-- `/app/backend/src/modules/lifecycle/lifecycle.service.ts` — Enhanced with L2 methods
-- `/app/backend/src/modules/lifecycle/lifecycle.routes.ts` — Added L2 endpoints
-- `/app/frontend/src/api/lifecycle.api.js` — API client
-- `/app/frontend/src/components/fractal/admin/LifecycleTab.jsx` — Main UI component
-- `/app/frontend/src/components/fractal/admin/AdminDashboard.js` — Integrated Lifecycle tab
+**L3.1 Constitution Binding**
+- `/api/lifecycle/constitution/apply` — Applies constitution hash
+- Если hash изменился + модель APPLIED → сброс в WARMUP (PROD) или SIMULATION (DEV)
+- Event: CONSTITUTION_APPLIED
 
-## User Personas
-- **Institutional Operator**: Uses lifecycle tab to manage model states, monitor drift, control warmup periods
-- **Developer (DEV mode)**: Tests lifecycle transitions, resets simulation states
+**L3.2 Drift Auto-Revoke**
+- `/api/lifecycle/drift/update` — Обновляет drift severity
+- Если APPLIED + drift=CRITICAL → автоматический REVOKED
+- Event: DRIFT_CRITICAL_REVOKE
 
-## Prioritized Backlog
-### P0 - Core (DONE)
-- [x] Lifecycle state API
-- [x] Events timeline
-- [x] BTC/SPX cards with status
-- [x] Action buttons (warmup, apply, revoke, reset)
-- [x] Combined readiness display
+**L3.3 Drift Recovery**
+- Встроено в drift update hook
+- Если REVOKED + drift восстановился из CRITICAL → переход в WARMUP
+- Event: DRIFT_RECOVERY_WARMUP
 
-### P1 - Enhancements
-- [ ] Real-time WebSocket updates for lifecycle state
-- [ ] Historical Sharpe / Live Sharpe comparison in diagnostics
-- [ ] Daily run integration with warmup progress
+**L3.4 State Integrity Guard**
+- `/api/lifecycle/integrity/check` — Проверяет и исправляет инварианты
+- DEV mode не может иметь APPLIED статус
+- WARMUP обязан иметь warmup блок
+- APPLIED требует liveSamples >= 30 и drift != CRITICAL
+- Event: STATE_AUTOFIX
 
-### P2 - Future
-- [ ] Auto-promotion after 30 days warmup in PROD
-- [ ] Drift alerts integration
-- [ ] Constitution hash display and validation
+**L3.5 Auto-Promotion**
+- `/api/lifecycle/samples/increment` — Инкремент live samples
+- `/api/lifecycle/check-promotion` — Проверка eligibility
+- При liveSamples >= 30 + drift OK/WATCH + PROD → WARMUP→APPLIED
+- Event: AUTO_APPLY
+
+### Files Created/Modified
+- `/app/backend/src/modules/lifecycle/lifecycle.hooks.ts` — L3.1-L3.5 хуки
+- `/app/backend/src/modules/lifecycle/lifecycle.integrity.ts` — L3.4 валидация
+- `/app/backend/src/modules/lifecycle/lifecycle.routes.ts` — L3 эндпоинты
+- `/app/frontend/src/components/fractal/admin/LifecycleTab.jsx` — DEV Controls + L3 UI
+- `/app/frontend/src/api/lifecycle.api.js` — L3 API клиент
+
+## System Behavior
+
+### DEV Mode
+- Статус: SIMULATION (never auto-promote)
+- Constitution apply → остаётся SIMULATION
+- Drift CRITICAL → no auto-revoke (только warning)
+- Full DEV Controls panel для тестирования
+
+### PROD Mode
+- Auto-promotion: WARMUP → APPLIED при 30+ samples
+- Auto-revoke: APPLIED → REVOKED при drift CRITICAL
+- Recovery: REVOKED → WARMUP при drift recovery
+- Constitution change: APPLIED → WARMUP
+
+## Test Status
+- Backend: 100% (40/40 tests passed)
+- Frontend: UI verified via screenshot
 
 ## Next Tasks
-1. Test warmup auto-promotion logic when live samples reach 30
-2. Add drift monitoring integration
-3. Implement constitution hash display
+1. Governance UI для apply constitution через интерфейс
+2. Daily Runner интеграция с lifecycle hooks
+3. Drift monitoring интеграция
