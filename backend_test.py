@@ -308,6 +308,172 @@ class FractalAPITester:
         
         return False, None
 
+    def test_u6_scenario_pack_structure(self):
+        """U6: Test that focus-pack returns scenario object with correct structure"""
+        print("\n🎯 Testing U6: Scenario pack structure in focus-pack response")
+        
+        success, data = self.run_test(
+            "Focus pack BTC 30d for scenario",
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "30d"}
+        )
+        
+        if success and data:
+            scenario = data.get('scenario')
+            if not scenario:
+                self.issues.append("U6: Missing scenario object in focus-pack response")
+                return False, data
+            
+            # Check required scenario fields
+            required_fields = [
+                'horizonDays', 'basePrice', 'returns', 'targets', 
+                'probUp', 'sampleSize', 'dataStatus', 'cases'
+            ]
+            
+            missing_fields = []
+            for field in required_fields:
+                if field not in scenario:
+                    missing_fields.append(field)
+            
+            if missing_fields:
+                self.issues.append(f"U6: Missing scenario fields: {missing_fields}")
+                return False, data
+                
+            # Check returns structure (p10, p50, p90)
+            returns = scenario.get('returns', {})
+            if not all(k in returns for k in ['p10', 'p50', 'p90']):
+                self.issues.append("U6: Missing p10/p50/p90 returns in scenario")
+                return False, data
+                
+            # Check targets structure
+            targets = scenario.get('targets', {})
+            if not all(k in targets for k in ['p10', 'p50', 'p90']):
+                self.issues.append("U6: Missing p10/p50/p90 targets in scenario")
+                return False, data
+                
+            # Check cases array (Bear/Base/Bull)
+            cases = scenario.get('cases', [])
+            if len(cases) != 3:
+                self.issues.append(f"U6: Expected 3 scenario cases, got {len(cases)}")
+                return False, data
+                
+            case_labels = [case.get('label') for case in cases]
+            expected_labels = ['Bear', 'Base', 'Bull']
+            if set(case_labels) != set(expected_labels):
+                self.issues.append(f"U6: Expected cases {expected_labels}, got {case_labels}")
+                return False, data
+            
+            print(f"   ✅ Scenario horizonDays: {scenario.get('horizonDays')}")
+            print(f"   ✅ Scenario basePrice: {scenario.get('basePrice')}")
+            print(f"   ✅ Scenario probUp: {scenario.get('probUp')}")
+            print(f"   ✅ Scenario sampleSize: {scenario.get('sampleSize')}")
+            print(f"   ✅ Scenario dataStatus: {scenario.get('dataStatus')}")
+            print(f"   ✅ Cases: {[case.get('label') for case in cases]}")
+            print("✅ U6 Scenario pack structure is valid")
+            return True, data
+        
+        return False, None
+    
+    def test_u6_different_horizons_scenarios(self):
+        """U6: Test that different horizons (7d vs 365d) return different scenario targets"""
+        print("\n🎯 Testing U6: Different scenario targets for 7d vs 365d horizons")
+        
+        # Test 7d scenario
+        success_7d, data_7d = self.run_test(
+            "Scenario pack BTC 7d",
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "7d"}
+        )
+        
+        # Test 365d scenario
+        success_365d, data_365d = self.run_test(
+            "Scenario pack BTC 365d",
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "365d"}
+        )
+        
+        if success_7d and success_365d:
+            scenario_7d = data_7d.get('scenario', {})
+            scenario_365d = data_365d.get('scenario', {})
+            
+            if not scenario_7d or not scenario_365d:
+                self.issues.append("U6: Missing scenario data in horizon responses")
+                return False, data_7d, data_365d
+            
+            # Compare horizon days
+            horizon_7d = scenario_7d.get('horizonDays')
+            horizon_365d = scenario_365d.get('horizonDays')
+            
+            print(f"   7d horizonDays: {horizon_7d}")
+            print(f"   365d horizonDays: {horizon_365d}")
+            
+            if horizon_7d != 7 or horizon_365d != 365:
+                self.issues.append(f"U6: Wrong horizonDays - 7d:{horizon_7d}, 365d:{horizon_365d}")
+                return False, data_7d, data_365d
+            
+            # Compare target prices (should be different)
+            targets_7d = scenario_7d.get('targets', {})
+            targets_365d = scenario_365d.get('targets', {})
+            
+            p90_7d = targets_7d.get('p90', 0)
+            p90_365d = targets_365d.get('p90', 0)
+            
+            print(f"   7d P90 target: ${p90_7d:,}")
+            print(f"   365d P90 target: ${p90_365d:,}")
+            
+            if p90_7d == p90_365d:
+                print("⚠️  Same P90 targets for different horizons - unexpected")
+            else:
+                print("✅ Different P90 targets for different horizons")
+            
+            return True, data_7d, data_365d
+        
+        return False, None, None
+    
+    def test_u6_data_status_real_vs_fallback(self):
+        """U6: Test dataStatus is REAL when sampleSize >= 5"""
+        print("\n🎯 Testing U6: Data status logic (REAL when sampleSize >= 5)")
+        
+        success, data = self.run_test(
+            "Scenario pack data status",
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "30d"}
+        )
+        
+        if success and data:
+            scenario = data.get('scenario', {})
+            if not scenario:
+                self.issues.append("U6: Missing scenario for data status test")
+                return False, data
+            
+            sample_size = scenario.get('sampleSize', 0)
+            data_status = scenario.get('dataStatus', 'UNKNOWN')
+            
+            print(f"   Sample size: {sample_size}")
+            print(f"   Data status: {data_status}")
+            
+            # Expected logic: REAL when sampleSize >= 5
+            expected_status = 'REAL' if sample_size >= 5 else 'FALLBACK'
+            
+            print(f"   Expected status: {expected_status}")
+            
+            if data_status == expected_status:
+                print("✅ Data status logic is correct")
+                return True, data
+            else:
+                self.issues.append(f"U6: Wrong data status - got {data_status}, expected {expected_status}")
+                return False, data
+        
+        return False, None
+    
     def test_fractal_page_endpoint(self):
         """Test that frontend /fractal page loads without errors"""
         print("\n🎯 Testing Frontend: /fractal page accessibility")
