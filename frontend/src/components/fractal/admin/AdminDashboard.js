@@ -252,6 +252,8 @@ export function AdminDashboard() {
           <div className="max-w-7xl mx-auto px-4 py-6">
             <SpxAdminTab />
           </div>
+        ) : activeTab === 'lifecycle' ? (
+          <LifecycleTab />
         ) : activeTab === 'spx_attribution' ? (
           <div className="max-w-7xl mx-auto px-4 py-6">
             <SpxAttributionTab />
@@ -286,6 +288,8 @@ export function AdminDashboard() {
           fetchData={fetchData}
           handleApplyPlaybook={handleApplyPlaybook}
         />
+      ) : activeTab === 'lifecycle' ? (
+        <LifecycleTab />
       ) : activeTab === 'shadow' ? (
         <ShadowDivergencePanel />
       ) : activeTab === 'volatility' ? (
