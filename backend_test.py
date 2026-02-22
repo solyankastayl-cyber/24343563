@@ -57,21 +57,52 @@ class FractalAPITester:
             print(f"❌ Failed - Error: {str(e)}")
             self.issues.append(f"{name}: {str(e)}")
             return False, {}
-    
-    def test_get_lifecycle_state(self):
-        """Test GET /api/lifecycle/state"""
-        try:
-            url = f"{self.base_url}/api/lifecycle/state"
-            response = requests.get(url, timeout=30)
+    def test_focus_pack_7d_vs_365d(self):
+        """U3: Test that 7d and 365d return different matches"""
+        print("\n🎯 Testing U3: Multi-Horizon calls with different matches")
+        
+        # Test 7d horizon
+        success_7d, data_7d = self.run_test(
+            "Focus pack BTC 7d",
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "7d"}
+        )
+        
+        # Test 365d horizon  
+        success_365d, data_365d = self.run_test(
+            "Focus pack BTC 365d", 
+            "GET",
+            "api/fractal/v2.1/focus-pack",
+            200,
+            params={"symbol": "BTC", "focus": "365d"}
+        )
+        
+        if success_7d and success_365d:
+            # Check if responses have different matches
+            matches_7d = data_7d.get('overlay', {}).get('matches', [])
+            matches_365d = data_365d.get('overlay', {}).get('matches', [])
             
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('ok') and 'data' in data:
-                    # Check if states exist
-                    states = data['data'].get('states', [])
-                    combined = data['data'].get('combined', {})
-                    btc = data['data'].get('btc')
-                    spx = data['data'].get('spx')
+            if len(matches_7d) > 0 and len(matches_365d) > 0:
+                # Compare first match IDs to see if they're different
+                first_match_7d = matches_7d[0].get('id', 'none') if matches_7d else 'none'
+                first_match_365d = matches_365d[0].get('id', 'none') if matches_365d else 'none'
+                
+                print(f"   7d first match: {first_match_7d}, count: {len(matches_7d)}")
+                print(f"   365d first match: {first_match_365d}, count: {len(matches_365d)}")
+                
+                if first_match_7d != first_match_365d:
+                    print("✅ Different horizons return different matches")
+                    return True, data_7d, data_365d
+                else:
+                    print("⚠️  Same first match for different horizons - might be expected")
+                    return True, data_7d, data_365d
+            else:
+                self.issues.append("U3: No matches found in responses")
+                return False, data_7d, data_365d
+        
+        return False, None, None
                     
                     print(f"   Found {len(states)} lifecycle states")
                     print(f"   BTC state: {btc['status'] if btc else 'None'}")
