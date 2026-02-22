@@ -37,24 +37,32 @@ const MODES = [
  * Risk НЕ заменяет Signal, а ограничивает торговлю
  */
 function PrimarySignal({ signal }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
   const configs = {
     BUY: { 
       icon: TrendingUp, 
       bg: 'bg-emerald-500',
       text: 'text-emerald-700',
-      label: 'BUY'
+      label: 'BUY',
+      description: 'Bullish signal — favorable conditions for entry',
+      hint: 'Consider opening or adding to long positions'
     },
     SELL: { 
       icon: TrendingDown, 
       bg: 'bg-red-500',
       text: 'text-red-700',
-      label: 'SELL'
+      label: 'SELL',
+      description: 'Bearish signal — consider reducing exposure',
+      hint: 'Risk reduction advised, consider taking profits'
     },
     HOLD: { 
       icon: Pause, 
       bg: 'bg-amber-500',
       text: 'text-amber-700',
-      label: 'HOLD'
+      label: 'HOLD',
+      description: 'Neutral signal — wait for clarity',
+      hint: 'No clear direction, maintain current positions'
     }
   };
   
@@ -63,18 +71,41 @@ function PrimarySignal({ signal }) {
   
   return (
     <div 
-      className="flex items-center gap-2.5"
-      title={`Signal: ${config.label} — aggregated across all horizons`}
+      className="relative"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
     >
-      <div className={`
-        w-9 h-9 rounded-lg ${config.bg}
-        flex items-center justify-center
-      `}>
-        <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+      <div className="flex items-center gap-2.5 cursor-help">
+        <div className={`
+          w-9 h-9 rounded-lg ${config.bg}
+          flex items-center justify-center
+        `}>
+          <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+        </div>
+        <span className={`text-base font-bold ${config.text}`}>
+          {config.label}
+        </span>
       </div>
-      <span className={`text-base font-bold ${config.text}`}>
-        {config.label}
-      </span>
+      
+      {/* Tooltip */}
+      {showTooltip && (
+        <div className="
+          absolute top-full left-0 mt-2 z-50
+          w-64 p-3 bg-slate-800 rounded-lg shadow-xl
+          text-white text-xs
+        ">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Icon className="w-4 h-4" />
+            <span className="font-semibold">{config.label} Signal</span>
+          </div>
+          <p className="text-slate-300 mb-2">{config.description}</p>
+          <p className="text-slate-400 text-[10px] italic">{config.hint}</p>
+          <p className="text-slate-500 text-[10px] mt-2 pt-2 border-t border-slate-700">
+            Aggregated across all time horizons
+          </p>
+          <div className="absolute -top-1 left-6 w-2 h-2 bg-slate-800 rotate-45" />
+        </div>
+      )}
     </div>
   );
 }
