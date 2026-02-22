@@ -363,6 +363,51 @@ class LifecycleAPITester:
             self.log_result(f"GET /api/lifecycle/{model_id}/status", False, error=str(e))
         return False
     
+    def test_l3_workflow_scenarios(self):
+        """Test comprehensive L3 workflow scenarios"""
+        print("\n🧪 Testing L3 Workflow Scenarios...")
+        
+        # Scenario 1: Constitution Binding (L3.1) - change constitution on APPLIED model
+        print("\n📋 Scenario 1: Constitution Binding Test...")
+        self.test_reset_simulation("BTC")  # Start fresh
+        self.test_force_apply("BTC")  # Apply first
+        constitution_result = self.test_constitution_apply("BTC", "new_constitution_hash_123")
+        if constitution_result and constitution_result.get('applied'):
+            print("   ✅ Constitution binding worked - status reset as expected")
+        
+        # Scenario 2: Drift Auto-Revoke (L3.2) - CRITICAL drift should revoke APPLIED model
+        print("\n⚠️  Scenario 2: Drift Auto-Revoke Test...")
+        self.test_force_apply("BTC")  # Apply first
+        revoke_result = self.test_drift_update("BTC", "CRITICAL")
+        if revoke_result and revoke_result.get('revoked'):
+            print("   ✅ Auto-revoke worked - model revoked due to CRITICAL drift")
+        
+        # Scenario 3: Drift Recovery (L3.3) - recovery from CRITICAL should enter WARMUP  
+        print("\n🔄 Scenario 3: Drift Recovery Test...")
+        # Model should be REVOKED from previous test
+        recovery_result = self.test_drift_update("BTC", "OK")
+        if recovery_result:
+            # Check if model is now in WARMUP
+            self.test_model_status("BTC")
+            print("   ✅ Drift recovery test completed")
+        
+        # Scenario 4: Auto-Promotion (L3.5) - 30+ samples + OK drift should promote
+        print("\n🚀 Scenario 4: Auto-Promotion Test...")
+        self.test_reset_simulation("BTC")  # Fresh start
+        self.test_force_warmup("BTC")      # Start warmup
+        self.test_drift_update("BTC", "OK")  # Ensure drift is OK
+        # Add samples incrementally to test progression
+        for i in range(5):
+            samples_result = self.test_samples_increment("BTC", 6)  # Add 6 samples each time (total 30)
+            if samples_result and samples_result.get('promoted'):
+                print(f"   ✅ Auto-promotion triggered after {samples_result.get('liveSamples', 0)} samples")
+                break
+        
+        # Scenario 5: State Integrity (L3.4) - validate and fix state
+        print("\n🛡️  Scenario 5: State Integrity Test...")
+        self.test_integrity_check("BTC")
+        self.test_integrity_check("SPX")
+    
     def run_all_tests(self):
         """Run all lifecycle API tests"""
         print("🔍 Testing Lifecycle API endpoints...")
@@ -383,17 +428,33 @@ class LifecycleAPITester:
         self.test_model_status("SPX")
         
         # Test lifecycle actions for both models
-        print("\n🚀 Testing Lifecycle Actions for BTC...")
+        print("\n🚀 Testing L2 Lifecycle Actions for BTC...")
         self.test_force_warmup("BTC")
         self.test_force_apply("BTC")
         self.test_revoke("BTC")
         self.test_reset_simulation("BTC")
         
-        print("\n🚀 Testing Lifecycle Actions for SPX...")
+        print("\n🚀 Testing L2 Lifecycle Actions for SPX...")
         self.test_force_warmup("SPX")
         self.test_force_apply("SPX")
         self.test_revoke("SPX")
         self.test_reset_simulation("SPX")
+        
+        # Test L3 features
+        print("\n🔬 Testing L3 Features...")
+        self.test_constitution_apply("BTC", "test_hash_btc")
+        self.test_constitution_apply("SPX", "test_hash_spx")
+        self.test_drift_update("BTC", "WARN")
+        self.test_drift_update("SPX", "OK")
+        self.test_samples_increment("BTC", 5)
+        self.test_samples_increment("SPX", 10)
+        self.test_integrity_check("BTC")
+        self.test_integrity_check("SPX")
+        self.test_check_promotion("BTC")
+        self.test_check_promotion("SPX")
+        
+        # Test comprehensive L3 workflows
+        self.test_l3_workflow_scenarios()
         
         # Final results
         print("\n" + "=" * 50)
