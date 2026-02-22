@@ -527,6 +527,7 @@ const FractalTerminal = () => {
             )}
 
             {/* Regime Card */}
+            {/* Regime Card */}
             {volatility && (
               <div className="bg-white rounded-lg border border-gray-200 p-4">
                 <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Vol Regime</div>
@@ -535,29 +536,28 @@ const FractalTerminal = () => {
                     volatility.regime === 'LOW' ? 'bg-green-100 text-green-700' :
                     volatility.regime === 'NORMAL' ? 'bg-blue-100 text-blue-700' :
                     volatility.regime === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                      volatility.regime === 'EXPANSION' ? 'bg-purple-100 text-purple-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {volatility.regime}
-                    </span>
-                    <span className="text-sm text-gray-500">RV30: {(volatility.rv30 * 100).toFixed(0)}%</span>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    Z-Score: {volatility.zScore?.toFixed(2)} | ATR Pctl: {volatility.atrPctl?.toFixed(0)}%
-                  </div>
+                    volatility.regime === 'EXPANSION' ? 'bg-purple-100 text-purple-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {volatility.regime}
+                  </span>
+                  <span className="text-sm text-gray-500">RV30: {(volatility.rv30 * 100).toFixed(0)}%</span>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  Z-Score: {volatility.zScore?.toFixed(2)} | ATR Pctl: {volatility.atrPctl?.toFixed(0)}%
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Strategy Panel */}
-        <div className="mt-6">
+        <div className="mb-6">
           <StrategyPanel symbol={symbol} />
         </div>
         
         {/* Forward Performance Panel */}
-        <div className="mt-6">
+        <div className="mb-6">
           <ForwardPerformancePanel />
         </div>
         
@@ -569,7 +569,6 @@ const FractalTerminal = () => {
           diagnostics={diagnostics}
           matchesCount={matchesCount}
           dataStatus={focusError ? 'error' : focusLoading ? 'loading' : 'real'}
-          className="mt-6"
         />
       </main>
     </div>
