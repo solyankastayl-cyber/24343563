@@ -349,17 +349,6 @@ const FractalTerminal = () => {
           overlay={overlay}
         />
         
-        {/* UNIFIED SYSTEM STATUS PANEL — Replaces multiple duplicate strips */}
-        <SystemStatusPanel
-          phaseSnapshot={terminalData?.phaseSnapshot}
-          consensusPulse={consensusPulse}
-          meta={meta}
-          diagnostics={diagnostics}
-          matchesCount={matchesCount}
-          dataStatus={focusError ? 'error' : focusLoading ? 'loading' : 'real'}
-          className="mb-6"
-        />
-        
         {/* BLOCK 70.2: Horizon Selector */}
         <div className="mb-6">
           <HorizonSelector 
