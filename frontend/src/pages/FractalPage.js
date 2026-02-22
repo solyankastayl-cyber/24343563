@@ -1,11 +1,11 @@
 /**
  * FRACTAL RESEARCH TERMINAL v6
- * STEP A — Canvas Refactor (3 Modes)
+ * UNIFIED CONTROL ROW — Compact single-row layout
  * 
- * Modes:
- * - Price: Synthetic model + probability corridor
- * - Replay: Historical analogue + aftermath
- * - Hybrid: Synthetic vs Replay dual projection
+ * Structure:
+ * [ Header ]
+ * [ Control Row: Status | Mode | Horizon ]
+ * [ Chart (Full Width) ]
  */
 
 import React, { useState, useEffect } from 'react';
@@ -18,12 +18,11 @@ import { VolatilityCard } from '../components/fractal/VolatilityCard';
 import { SizingBreakdown } from '../components/fractal/SizingBreakdown';
 import { HorizonStackView } from '../components/fractal/HorizonStackView';
 import { ConsensusPanel } from '../components/fractal/ConsensusPanel';
-import { HorizonSelector, HorizonPills } from '../components/fractal/HorizonSelector';
 import { SystemStatusPanel } from '../components/fractal/SystemStatusPanel';
+import { UnifiedControlRow } from '../components/fractal/UnifiedControlRow';
 import { PhaseHeatmap } from '../components/fractal/PhaseHeatmap';
 import { PhaseStrengthBadge } from '../components/fractal/PhaseStrengthBadge';
 import { AsOfDatePicker } from '../components/fractal/AsOfDatePicker';
-import { SignalHeader } from '../components/fractal/SignalHeader';
 import { ScenarioBox } from '../components/fractal/ScenarioBox';
 import { RiskBox } from '../components/fractal/RiskBox';
 import { useFocusPack, HORIZONS, getTierColor, getTierLabel } from '../hooks/useFocusPack';
