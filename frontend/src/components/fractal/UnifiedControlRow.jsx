@@ -32,50 +32,47 @@ const MODES = [
 ];
 
 /**
- * Primary Signal — Main status badge
+ * Primary Signal — Main status badge (BUY/SELL/HOLD)
+ * Signal = "что делать" (действие)
+ * Risk НЕ заменяет Signal, а ограничивает торговлю
  */
-function PrimarySignal({ signal, risk }) {
-  // If CRISIS - show crisis as primary
-  const isCrisis = risk === 'CRISIS';
-  
+function PrimarySignal({ signal }) {
   const configs = {
     BUY: { 
       icon: TrendingUp, 
       bg: 'bg-emerald-500',
+      text: 'text-emerald-700',
       label: 'BUY'
     },
     SELL: { 
       icon: TrendingDown, 
       bg: 'bg-red-500',
+      text: 'text-red-700',
       label: 'SELL'
     },
     HOLD: { 
       icon: Pause, 
       bg: 'bg-amber-500',
+      text: 'text-amber-700',
       label: 'HOLD'
-    },
-    CRISIS: {
-      icon: AlertTriangle,
-      bg: 'bg-red-600',
-      label: 'CRISIS'
     }
   };
   
-  const config = isCrisis ? configs.CRISIS : (configs[signal] || configs.HOLD);
+  const config = configs[signal] || configs.HOLD;
   const Icon = config.icon;
   
   return (
     <div 
       className="flex items-center gap-2.5"
-      title={isCrisis ? 'Crisis mode - extreme volatility' : `Global signal: ${signal}`}
+      title={`Signal: ${config.label} — aggregated across all horizons`}
     >
       <div className={`
         w-9 h-9 rounded-lg ${config.bg}
         flex items-center justify-center
       `}>
-        <Icon className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
+        <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
       </div>
-      <span className="text-base font-bold text-slate-800">
+      <span className={`text-base font-bold ${config.text}`}>
         {config.label}
       </span>
     </div>
