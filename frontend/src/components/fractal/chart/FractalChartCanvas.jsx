@@ -67,6 +67,117 @@ function Tooltip({ candle, sma, phase }) {
   );
 }
 
+/**
+ * BLOCK U4 — Forecast Tooltip (for hover in forecast zone)
+ * Shows date, forecast price, return %, and range (P10-P90)
+ */
+function ForecastTooltip({ day, forecastData, currentPrice, horizonDays }) {
+  if (!forecastData || day < 0) return null;
+  
+  const { syntheticPrice, replayPrice, p10, p90 } = forecastData;
+  
+  const formatPrice = (p) => {
+    if (!p || isNaN(p)) return '—';
+    if (p >= 1000) return `$${(p / 1000).toFixed(2)}K`;
+    return `$${p.toFixed(0)}`;
+  };
+  
+  const formatReturn = (p) => {
+    if (!p || !currentPrice) return '—';
+    const ret = ((p - currentPrice) / currentPrice * 100);
+    const sign = ret >= 0 ? '+' : '';
+    return `${sign}${ret.toFixed(1)}%`;
+  };
+  
+  // Calculate date
+  const forecastDate = new Date();
+  forecastDate.setDate(forecastDate.getDate() + day);
+  const dateStr = forecastDate.toLocaleDateString();
+  
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 12,
+        right: 12,
+        background: "#fff",
+        border: "1px solid #e5e5e5",
+        padding: "12px 14px",
+        fontSize: 12,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        borderRadius: 8,
+        minWidth: 160,
+        zIndex: 10
+      }}
+      data-testid="forecast-tooltip"
+    >
+      <div style={{ fontWeight: 600, marginBottom: 6, display: 'flex', justifyContent: 'space-between' }}>
+        <span>{dateStr}</span>
+        <span style={{ color: '#666', fontSize: 10 }}>Day +{day}/{horizonDays}</span>
+      </div>
+      
+      <div style={{ display: "grid", gap: 4 }}>
+        {/* Synthetic Price */}
+        {syntheticPrice && (
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            padding: '4px 0',
+            borderBottom: '1px solid #f0f0f0'
+          }}>
+            <span style={{ color: "#22c55e", fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
+              Synthetic
+            </span>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontWeight: 600 }}>{formatPrice(syntheticPrice)}</div>
+              <div style={{ fontSize: 10, color: syntheticPrice >= currentPrice ? '#22c55e' : '#ef4444' }}>
+                {formatReturn(syntheticPrice)}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Replay Price */}
+        {replayPrice && (
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between",
+            padding: '4px 0',
+            borderBottom: '1px solid #f0f0f0'
+          }}>
+            <span style={{ color: "#8b5cf6", fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#8b5cf6' }}></span>
+              Replay
+            </span>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontWeight: 600 }}>{formatPrice(replayPrice)}</div>
+              <div style={{ fontSize: 10, color: replayPrice >= currentPrice ? '#22c55e' : '#ef4444' }}>
+                {formatReturn(replayPrice)}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Range P10-P90 */}
+        {(p10 || p90) && (
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between",
+            padding: '4px 0',
+            marginTop: 4
+          }}>
+            <span style={{ color: "rgba(0,0,0,0.5)", fontSize: 10 }}>Range (10-90)</span>
+            <span style={{ fontSize: 11, fontFamily: 'monospace' }}>
+              {formatPrice(p10)} — {formatPrice(p90)}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function FractalChartCanvas({ 
   chart, 
   forecast, 
