@@ -81,17 +81,33 @@ function PrimarySignal({ signal }) {
 
 /**
  * Secondary Indicator — Compact icon with tooltip
+ * Strict color rules:
+ * - Risk: colored only at ELEVATED/CRISIS
+ * - Confidence: gray, slight amber at LOW
+ * - MarketMode: always neutral gray
  */
-function SecondaryIndicator({ icon: Icon, value, label, tooltip, variant = 'default' }) {
+function SecondaryIndicator({ icon: Icon, value, label, tooltip, type = 'default' }) {
   const [showTooltip, setShowTooltip] = useState(false);
   
-  // Color based on variant
-  const variantStyles = {
-    default: 'text-slate-400 hover:text-slate-600',
-    warning: 'text-amber-500 hover:text-amber-600',
-    danger: 'text-red-500 hover:text-red-600',
-    success: 'text-emerald-500 hover:text-emerald-600',
-  };
+  // Color logic based on type and value
+  let colorClass = 'text-slate-400 hover:text-slate-600';
+  let bgHover = 'hover:bg-slate-100';
+  
+  if (type === 'risk') {
+    if (value === 'CRISIS') {
+      colorClass = 'text-red-600';
+      bgHover = 'hover:bg-red-50';
+    } else if (value === 'ELEVATED' || value === 'HIGH') {
+      colorClass = 'text-amber-600';
+      bgHover = 'hover:bg-amber-50';
+    }
+  } else if (type === 'confidence') {
+    if (value === 'Low' || value === 'LOW') {
+      colorClass = 'text-amber-500';
+      bgHover = 'hover:bg-amber-50';
+    }
+  }
+  // MarketMode always stays neutral gray
   
   return (
     <div 
@@ -100,9 +116,8 @@ function SecondaryIndicator({ icon: Icon, value, label, tooltip, variant = 'defa
       onMouseLeave={() => setShowTooltip(false)}
     >
       <div className={`
-        flex items-center gap-1.5 px-2 py-1 rounded-md cursor-help
-        transition-colors ${variantStyles[variant]}
-        hover:bg-slate-100
+        flex items-center gap-1.5 px-2 py-1.5 rounded-md cursor-help
+        transition-colors ${colorClass} ${bgHover}
       `}>
         <Icon className="w-4 h-4" strokeWidth={2} />
         <span className="text-xs font-medium">{value}</span>
@@ -125,66 +140,73 @@ function SecondaryIndicator({ icon: Icon, value, label, tooltip, variant = 'defa
 }
 
 /**
- * Status Block — Primary + Secondary indicators
+ * Status Block — Primary Signal + 3 Secondary indicators
+ * 
+ * Layout: [SIGNAL] | [RISK] [CONFIDENCE] [PHASE]
  */
 function StatusBlock({ signal, confidence, marketMode, risk }) {
-  // Confidence variant
-  const confVariant = confidence === 'Low' ? 'warning' : confidence === 'High' ? 'success' : 'default';
-  const confTooltip = {
-    High: 'Strong conviction across indicators',
-    Medium: 'Moderate certainty',
-    Low: 'High uncertainty - proceed with caution'
+  // Tooltips
+  const riskTooltip = {
+    CRISIS: 'Extreme volatility — trading blocked, NO_TRADE',
+    ELEVATED: 'Higher than normal risk — reduce position size',
+    HIGH: 'Elevated risk environment',
+    Normal: 'Standard market conditions',
+    LOW: 'Low volatility — favorable for positions'
   };
   
-  // Phase variant
-  const phaseVariant = ['MARKDOWN', 'DISTRIBUTION'].includes(marketMode) ? 'warning' : 'default';
+  const confTooltip = {
+    High: 'Strong conviction across indicators',
+    HIGH: 'Strong conviction across indicators',
+    Medium: 'Moderate certainty',
+    MEDIUM: 'Moderate certainty',
+    Low: 'High uncertainty — proceed with caution',
+    LOW: 'High uncertainty — proceed with caution'
+  };
+  
   const phaseTooltip = {
-    ACCUMULATION: 'Smart money building positions',
-    DISTRIBUTION: 'Smart money reducing exposure',
+    ACCUMULATION: 'Smart money building positions — potential bottom',
+    DISTRIBUTION: 'Smart money reducing exposure — potential top',
     MARKUP: 'Bullish trend in progress',
     MARKDOWN: 'Bearish trend in progress',
     RECOVERY: 'Market recovering from lows'
   };
   
-  // Risk variant (only show if not Normal and not CRISIS - CRISIS shown as primary)
-  const showRiskIndicator = risk && risk !== 'Normal' && risk !== 'CRISIS';
-  const riskVariant = risk === 'HIGH' ? 'danger' : 'warning';
-  
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       {/* Primary Signal */}
-      <PrimarySignal signal={signal} risk={risk} />
+      <PrimarySignal signal={signal} />
       
       {/* Divider */}
-      <div className="w-px h-8 bg-slate-200" />
+      <div className="w-px h-7 bg-slate-200" />
       
-      {/* Secondary Indicators */}
-      <div className="flex items-center gap-1">
+      {/* Secondary Indicators: Risk, Confidence, Phase */}
+      <div className="flex items-center gap-0.5">
+        {/* Risk - always show, colored when elevated/crisis */}
+        <SecondaryIndicator 
+          icon={Shield}
+          value={risk || 'Normal'}
+          label="Risk"
+          tooltip={riskTooltip[risk] || 'Current risk level'}
+          type="risk"
+        />
+        
+        {/* Confidence */}
         <SecondaryIndicator 
           icon={Target}
           value={confidence}
           label="Confidence"
           tooltip={confTooltip[confidence] || 'Model confidence level'}
-          variant={confVariant}
+          type="confidence"
         />
         
+        {/* Market Phase - always neutral */}
         <SecondaryIndicator 
           icon={Activity}
           value={marketMode}
           label="Market Phase"
           tooltip={phaseTooltip[marketMode] || 'Current market cycle phase'}
-          variant={phaseVariant}
+          type="phase"
         />
-        
-        {showRiskIndicator && (
-          <SecondaryIndicator 
-            icon={Shield}
-            value={risk}
-            label="Risk Level"
-            tooltip="Elevated volatility environment"
-            variant={riskVariant}
-          />
-        )}
       </div>
     </div>
   );
