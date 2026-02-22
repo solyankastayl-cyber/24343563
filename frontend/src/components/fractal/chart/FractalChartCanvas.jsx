@@ -202,6 +202,10 @@ export function FractalChartCanvas({
   const [forecastHoverDay, setForecastHoverDay] = useState(-1);
   const [forecastHoverData, setForecastHoverData] = useState(null);
   
+  // C) Tail Risk tooltip state
+  const [tailRiskHover, setTailRiskHover] = useState(null);
+  const [tailRiskTooltipPos, setTailRiskTooltipPos] = useState({ x: 0, y: 0 });
+  
   // BLOCK 73.1.1: Determine axis mode from backend normalizedSeries
   const renderMode = focus === '7d' ? 'CAPSULE_7D' : 'TRAJECTORY';
   const axisMode = normalizedSeries?.mode === 'PERCENT' ? 'PERCENT' : 'PRICE';
