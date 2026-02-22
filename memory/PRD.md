@@ -1,12 +1,10 @@
-# Fractal Admin — Lifecycle Engine (L2+L3)
+# Fractal Admin — Lifecycle Engine (L2+L3+L4)
 
 ## Original Problem Statement
-Реализовать L3 блоки для Lifecycle Management:
-- L3.1 Constitution Binding
-- L3.2 Drift Auto-Revoke
-- L3.3 Drift Recovery
-- L3.4 State Integrity Guard
-- L3.5 Auto-Promotion
+Реализовать полный lifecycle management для институциональной торговой системы:
+- L2 Lifecycle Observability
+- L3 Governance Hooks (Constitution Binding, Drift Auto-Revoke, Recovery, Integrity)
+- L4 Daily Runner Orchestrator
 
 ## Architecture
 - **Backend**: TypeScript (Fastify) на порту 8001
@@ -22,61 +20,74 @@
 - LifecycleTab UI с карточками BTC/SPX, Combined Mode, Timeline
 
 ### L3 — Governance Hooks (Feb 22, 2026)
+- **L3.1 Constitution Binding** — При изменении hash + APPLIED → WARMUP/SIMULATION
+- **L3.2 Drift Auto-Revoke** — APPLIED + CRITICAL → REVOKED
+- **L3.3 Drift Recovery** — REVOKED + drift normalized → WARMUP
+- **L3.4 State Integrity Guard** — Валидация инвариантов, auto-fix
+- **L3.5 Auto-Promotion** — liveSamples >= 30 + OK/WATCH → APPLIED
 
-**L3.1 Constitution Binding**
-- `/api/lifecycle/constitution/apply` — Applies constitution hash
-- Если hash изменился + модель APPLIED → сброс в WARMUP (PROD) или SIMULATION (DEV)
-- Event: CONSTITUTION_APPLIED
+### L4.1 — Daily Run Orchestrator (Feb 22, 2026)
+**Daily-run как единственный дирижёр lifecycle**
 
-**L3.2 Drift Auto-Revoke**
-- `/api/lifecycle/drift/update` — Обновляет drift severity
-- Если APPLIED + drift=CRITICAL → автоматический REVOKED
-- Event: DRIFT_CRITICAL_REVOKE
+Pipeline Steps (строгий порядок):
+1. SNAPSHOT_WRITE
+2. OUTCOME_RESOLVE  
+3. LIVE_SAMPLE_UPDATE
+4. DRIFT_CHECK
+5. LIFECYCLE_HOOKS
+6. WARMUP_PROGRESS_WRITE
+7. AUTO_PROMOTE
+8. INTEL_TIMELINE_WRITE
+9. ALERTS_DISPATCH
+10. INTEGRITY_GUARD
 
-**L3.3 Drift Recovery**
-- Встроено в drift update hook
-- Если REVOKED + drift восстановился из CRITICAL → переход в WARMUP
-- Event: DRIFT_RECOVERY_WARMUP
+API Endpoints:
+- `POST /api/ops/daily-run/run-now?asset=BTC|SPX` — Запуск пайплайна
+- `GET /api/ops/daily-run/status` — Статус последнего запуска
+- `GET /api/ops/daily-run/history` — История запусков
 
-**L3.4 State Integrity Guard**
-- `/api/lifecycle/integrity/check` — Проверяет и исправляет инварианты
-- DEV mode не может иметь APPLIED статус
-- WARMUP обязан иметь warmup блок
-- APPLIED требует liveSamples >= 30 и drift != CRITICAL
-- Event: STATE_AUTOFIX
+Response Format:
+```json
+{
+  "ok": true,
+  "runId": "run-xxx",
+  "asset": "BTC",
+  "mode": "DEV",
+  "durationMs": 15,
+  "steps": [...],
+  "lifecycle": {
+    "before": { "status": "WARMUP", "liveSamples": 30, ... },
+    "after": { "status": "WARMUP", "liveSamples": 31, ... },
+    "transition": null
+  }
+}
+```
 
-**L3.5 Auto-Promotion**
-- `/api/lifecycle/samples/increment` — Инкремент live samples
-- `/api/lifecycle/check-promotion` — Проверка eligibility
-- При liveSamples >= 30 + drift OK/WATCH + PROD → WARMUP→APPLIED
-- Event: AUTO_APPLY
-
-### Files Created/Modified
-- `/app/backend/src/modules/lifecycle/lifecycle.hooks.ts` — L3.1-L3.5 хуки
-- `/app/backend/src/modules/lifecycle/lifecycle.integrity.ts` — L3.4 валидация
-- `/app/backend/src/modules/lifecycle/lifecycle.routes.ts` — L3 эндпоинты
-- `/app/frontend/src/components/fractal/admin/LifecycleTab.jsx` — DEV Controls + L3 UI
-- `/app/frontend/src/api/lifecycle.api.js` — L3 API клиент
+### Files Created
+- `/app/backend/src/modules/ops/daily-run/daily_run.types.ts`
+- `/app/backend/src/modules/ops/daily-run/daily_run.lifecycle.ts`
+- `/app/backend/src/modules/ops/daily-run/daily_run.orchestrator.ts`
+- `/app/backend/src/modules/ops/daily-run/daily_run.routes.ts`
+- `/app/frontend/src/components/fractal/admin/L4DailyRunCard.jsx`
 
 ## System Behavior
 
 ### DEV Mode
 - Статус: SIMULATION (never auto-promote)
-- Constitution apply → остаётся SIMULATION
-- Drift CRITICAL → no auto-revoke (только warning)
+- Daily-run запускается вручную через UI
 - Full DEV Controls panel для тестирования
 
 ### PROD Mode
+- Daily-run по расписанию (cron)
 - Auto-promotion: WARMUP → APPLIED при 30+ samples
 - Auto-revoke: APPLIED → REVOKED при drift CRITICAL
-- Recovery: REVOKED → WARMUP при drift recovery
-- Constitution change: APPLIED → WARMUP
 
 ## Test Status
-- Backend: 100% (40/40 tests passed)
-- Frontend: UI verified via screenshot
+- L3 Backend: 100% (40/40 tests)
+- L4.1 Backend: 100% (30/30 tests)
+- Frontend: UI verified via screenshots
 
 ## Next Tasks
-1. Governance UI для apply constitution через интерфейс
-2. Daily Runner интеграция с lifecycle hooks
-3. Drift monitoring интеграция
+1. **L4.2** — Auto Warmup Starter (PROD: SIMULATION + live candles → WARMUP)
+2. Интеграция snapshot/outcome services в daily-run steps
+3. Telegram alerts при AUTO_APPLY / DRIFT_CRITICAL_REVOKE
