@@ -1,0 +1,21 @@
+{
+  "summary": "Fractal UX Refactor - Backend API Testing",
+  "tests_passed": 2,
+  "tests_total": 2,
+  "success_rate": "100.0%",
+  "timestamp": "2026-02-22T16:31:07.177593",
+  "test_details": [
+    {
+      "test_name": "API Connectivity",
+      "passed": true,
+      "details": "API server is responsive",
+      "timestamp": "2026-02-22T16:31:06.816680"
+    },
+    {
+      "test_name": "Chart API Data",
+      "passed": true,
+      "details": "Valid response with 365 candles",
+      "timestamp": "2026-02-22T16:31:07.176676"
+    }
+  ]
+}
