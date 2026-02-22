@@ -33,6 +33,13 @@ export default function ShadowDivergenceDashboard() {
     try {
       const apiUrl = process.env.REACT_APP_BACKEND_URL || '';
       const res = await fetch(`${apiUrl}/api/fractal/v2.1/admin/shadow-divergence?symbol=BTC`);
+      
+      // Check res.ok before parsing JSON
+      if (!res.ok) {
+        setError(`HTTP ${res.status}`);
+        return;
+      }
+      
       const json = await res.json();
       if (json.error) {
         setError(json.message);
