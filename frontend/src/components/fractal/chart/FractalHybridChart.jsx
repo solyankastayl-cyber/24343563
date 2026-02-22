@@ -273,15 +273,15 @@ export function FractalHybridChart({
 
 /**
  * BLOCK 73.2 — Hybrid Summary Panel with Divergence Engine
- * BLOCK U4 — Enhanced with actual prices
+ * UX REFACTOR — Human-readable metrics and explanations
  * 
- * Shows: Synthetic, Replay, and full Divergence metrics from backend
- * Now displays both % return AND target prices
+ * Shows: Forecast (Model), Historical Replay, Agreement metrics
+ * Clear structure: What model predicts vs What history suggests
  */
 function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, divergence }) {
   if (!forecast || !currentPrice) return null;
   
-  // U4: Calculate both % returns AND absolute prices
+  // Calculate both % returns AND absolute prices
   const syntheticEndPrice = forecast.pricePath?.length 
     ? forecast.pricePath[forecast.pricePath.length - 1]
     : currentPrice;
@@ -297,25 +297,8 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
   // Use backend divergence metrics if available
   const div = divergence || {};
   const score = div.score ?? null;
-  const grade = div.grade ?? 'N/A';
-  const flags = div.flags ?? [];
   
-  // Grade colors
-  const gradeColors = {
-    'A': '#22c55e',
-    'B': '#84cc16',
-    'C': '#f59e0b',
-    'D': '#f97316',
-    'F': '#ef4444',
-    'N/A': '#888',
-  };
-  
-  const gradeColor = gradeColors[grade] || '#888';
-  
-  // Has warnings?
-  const hasWarnings = flags.length > 0 && !flags.includes('PERFECT_MATCH');
-  
-  // U4: Format price with K suffix for readability
+  // Format price with K suffix for readability
   const formatPrice = (p) => {
     if (!p || isNaN(p)) return '—';
     if (p >= 1000000) return `$${(p / 1000000).toFixed(2)}M`;
@@ -323,87 +306,204 @@ function HybridSummaryPanel({ forecast, primaryMatch, currentPrice, focus, diver
     return `$${p.toFixed(0)}`;
   };
 
+  // Map phase to human-readable name
+  const getPhaseLabel = (phase) => {
+    const labels = {
+      'ACC': 'Accumulation',
+      'ACCUMULATION': 'Accumulation',
+      'DIS': 'Distribution', 
+      'DISTRIBUTION': 'Distribution',
+      'REC': 'Recovery',
+      'RECOVERY': 'Recovery',
+      'MAR': 'Markdown',
+      'MARKDOWN': 'Markdown',
+      'MARKUP': 'Markup',
+    };
+    return labels[phase] || phase;
+  };
+
+  // Get horizon days for display
+  const horizonDays = focus.replace('d', '');
+
   return (
-    <div style={styles.container}>
+    <div style={styles.container} data-testid="hybrid-summary-panel">
+      {/* Header with title and quality score */}
       <div style={styles.header}>
-        <span style={styles.title}>HYBRID PROJECTION</span>
-        <span style={styles.subtitle}>{focus.toUpperCase()} Horizon</span>
-        {/* U4: Current Price Reference */}
-        <span style={styles.currentPrice}>
-          NOW: {formatPrice(currentPrice)}
-        </span>
-        {/* Grade badge */}
-        {score !== null && (
-          <span style={{
-            ...styles.gradeBadge,
-            backgroundColor: gradeColor,
-          }}>
-            {grade} ({score})
-          </span>
-        )}
-      </div>
-      
-      <div style={styles.grid}>
-        {/* Synthetic Column - U4: Added price */}
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>
-            <span style={{ ...styles.dot, backgroundColor: '#22c55e' }}></span>
-            SYNTHETIC
-          </div>
-          <div style={{ ...styles.value, color: syntheticReturn >= 0 ? '#22c55e' : '#ef4444' }}>
-            {syntheticReturn >= 0 ? '+' : ''}{syntheticReturn.toFixed(1)}%
-          </div>
-          {/* U4: Target Price */}
-          <div style={styles.priceTarget}>
-            {formatPrice(syntheticEndPrice)}
-          </div>
-          <div style={styles.label}>Model Projection</div>
+        <div style={styles.headerLeft}>
+          <span style={styles.title}>Hybrid Projection</span>
+          <span style={styles.horizonBadge}>{horizonDays}-Day Horizon</span>
         </div>
-        
-        {/* Replay Column - U4: Added price */}
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>
+        <div style={styles.headerRight}>
+          <span style={styles.currentPrice}>
+            Current: {formatPrice(currentPrice)}
+          </span>
+          {/* Match Quality Score - replaces cryptic "C (67)" */}
+          {score !== null && (
+            <div style={styles.qualityBadge} title="Composite score based on similarity, stability, volatility match and drawdown structure">
+              <span style={styles.qualityLabel}>Match Quality</span>
+              <span style={styles.qualityValue}>{score}/100</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main projection grid - 2 columns for Forecast vs Replay */}
+      <div style={styles.projectionGrid}>
+        {/* Forecast (Model) Block */}
+        <div style={styles.projectionBlock}>
+          <div style={styles.blockHeader}>
+            <span style={{ ...styles.dot, backgroundColor: '#22c55e' }}></span>
+            <span style={styles.blockTitle}>Forecast (Model)</span>
+          </div>
+          <div style={styles.blockContent}>
+            <div style={{ ...styles.returnValue, color: syntheticReturn >= 0 ? '#22c55e' : '#ef4444' }}>
+              {syntheticReturn >= 0 ? '+' : ''}{syntheticReturn.toFixed(1)}%
+            </div>
+            <div style={styles.targetPrice}>
+              Target: {formatPrice(syntheticEndPrice)}
+            </div>
+          </div>
+          <div style={styles.blockFooter}>
+            Synthetic model projection based on current structure
+          </div>
+        </div>
+
+        {/* Historical Replay Block */}
+        <div style={styles.projectionBlock}>
+          <div style={styles.blockHeader}>
             <span style={{ ...styles.dot, backgroundColor: '#8b5cf6' }}></span>
-            REPLAY
+            <span style={styles.blockTitle}>Historical Replay</span>
           </div>
           {replayReturn !== null ? (
             <>
-              <div style={{ ...styles.value, color: replayReturn >= 0 ? '#22c55e' : '#ef4444' }}>
-                {replayReturn >= 0 ? '+' : ''}{replayReturn.toFixed(1)}%
+              <div style={styles.blockContent}>
+                <div style={{ ...styles.returnValue, color: replayReturn >= 0 ? '#22c55e' : '#ef4444' }}>
+                  {replayReturn >= 0 ? '+' : ''}{replayReturn.toFixed(1)}%
+                </div>
+                <div style={styles.targetPrice}>
+                  Target: {formatPrice(replayEndPrice)}
+                </div>
               </div>
-              {/* U4: Target Price */}
-              <div style={styles.priceTarget}>
-                {formatPrice(replayEndPrice)}
-              </div>
-              <div style={styles.label}>
-                {primaryMatch?.id || 'Historical'} ({primaryMatch?.selectionScore 
-                  ? (primaryMatch.selectionScore * 100).toFixed(0) 
-                  : (primaryMatch?.similarity ? (primaryMatch.similarity * 100).toFixed(0) : '—')}% match)
+              <div style={styles.blockFooter}>
+                <span>Matched period: {primaryMatch?.id || 'Historical'}</span>
+                <span style={styles.matchInfo}>
+                  {primaryMatch?.similarity ? `${(primaryMatch.similarity * 100).toFixed(0)}% similarity` : ''}
+                  {primaryMatch?.phase && ` · ${getPhaseLabel(primaryMatch.phase)}`}
+                </span>
               </div>
             </>
           ) : (
-            <div style={styles.noData}>No replay data</div>
+            <div style={styles.noData}>No replay data available</div>
           )}
         </div>
-        
-        {/* Divergence Column - Now from backend */}
-        <div style={styles.column}>
-          <div style={styles.columnHeader}>DIVERGENCE</div>
-          <div style={{ ...styles.value, color: gradeColor }}>
-            {div.rmse != null ? `${div.rmse.toFixed(1)}%` : '—'}
-          </div>
-          <div style={{ ...styles.label, color: gradeColor }}>
-            RMSE
-          </div>
-        </div>
       </div>
-      
-      {/* BLOCK 73.2: Detailed Divergence Metrics */}
+
+      {/* Agreement Section - replaces cryptic "DIVERGENCE" */}
       {divergence && (
-        <DivergenceDetails divergence={divergence} hasWarnings={hasWarnings} />
+        <AgreementSection divergence={divergence} />
       )}
     </div>
   );
+}
+
+/**
+ * Agreement Section - Human-readable divergence metrics
+ * Replaces technical RMSE/MAPE with understandable explanations
+ */
+function AgreementSection({ divergence }) {
+  const { rmse, corr, terminalDelta, directionalMismatch, samplePoints, flags } = divergence;
+  
+  // Determine agreement level
+  const getAgreementLevel = () => {
+    if (rmse <= 5 && corr >= 0.7) return { label: 'Strong', color: '#22c55e' };
+    if (rmse <= 15 && corr >= 0.4) return { label: 'Moderate', color: '#f59e0b' };
+    return { label: 'Weak', color: '#ef4444' };
+  };
+  
+  const agreement = getAgreementLevel();
+  const hasWarnings = flags?.length > 0 && !flags.includes('PERFECT_MATCH');
+
+  return (
+    <div style={styles.agreementContainer}>
+      <div style={styles.agreementHeader}>
+        <span style={styles.agreementTitle}>Agreement between Model and Replay</span>
+        <span style={{ ...styles.agreementLevel, color: agreement.color }}>
+          {agreement.label}
+        </span>
+      </div>
+      
+      <div style={styles.agreementGrid}>
+        <AgreementMetric 
+          label="Divergence" 
+          value={rmse != null ? `${rmse.toFixed(1)}%` : '—'}
+          hint="Lower = stronger agreement"
+          warning={rmse > 20}
+        />
+        <AgreementMetric 
+          label="Correlation" 
+          value={corr?.toFixed(2) || '—'}
+          hint="Higher = more aligned"
+          warning={corr < 0.3}
+        />
+        <AgreementMetric 
+          label="Direction Match" 
+          value={directionalMismatch != null ? `${(100 - directionalMismatch).toFixed(0)}%` : '—'}
+          hint="Days where both agree on direction"
+          warning={directionalMismatch > 55}
+        />
+        <AgreementMetric 
+          label="Terminal Difference" 
+          value={terminalDelta != null ? `${terminalDelta >= 0 ? '+' : ''}${terminalDelta.toFixed(1)}%` : '—'}
+          hint="End-point difference"
+          warning={Math.abs(terminalDelta || 0) > 20}
+        />
+      </div>
+
+      {/* Risk Indicators */}
+      {hasWarnings && flags?.length > 0 && (
+        <div style={styles.warningsRow}>
+          {flags.filter(f => f !== 'PERFECT_MATCH').map((flag, i) => (
+            <span key={i} style={styles.warningBadge}>
+              {formatWarningFlag(flag)}
+            </span>
+          ))}
+        </div>
+      )}
+      
+      {flags?.includes('PERFECT_MATCH') && (
+        <div style={styles.perfectMatch}>
+          Strong alignment between Model and Replay
+        </div>
+      )}
+
+      {/* Sample size info */}
+      <div style={styles.sampleInfo}>
+        Analysis based on {samplePoints || '—'} data points
+      </div>
+    </div>
+  );
+}
+
+function AgreementMetric({ label, value, hint, warning }) {
+  return (
+    <div style={styles.agreementMetric}>
+      <div style={styles.metricLabel}>{label}</div>
+      <div style={{ ...styles.metricValue, color: warning ? '#f59e0b' : '#1f2937' }}>
+        {value}
+      </div>
+      <div style={styles.metricHint}>{hint}</div>
+    </div>
+  );
+}
+
+function formatWarningFlag(flag) {
+  const labels = {
+    'HIGH_DIVERGENCE': 'High divergence detected',
+    'LOW_CORR': 'Low correlation warning',
+    'TERM_DRIFT': 'Terminal drift detected',
+    'DIR_MISMATCH': 'Directional disagreement',
+  };
+  return labels[flag] || flag;
 }
 
 /**
