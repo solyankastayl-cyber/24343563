@@ -198,6 +198,10 @@ export function FractalChartCanvas({
   const [hoveredPhase, setHoveredPhase] = useState(null);
   const [phaseTooltipPos, setPhaseTooltipPos] = useState({ x: 0, y: 0 });
   
+  // BLOCK U4: Forecast zone hover state
+  const [forecastHoverDay, setForecastHoverDay] = useState(-1);
+  const [forecastHoverData, setForecastHoverData] = useState(null);
+  
   // BLOCK 73.1.1: Determine axis mode from backend normalizedSeries
   const renderMode = focus === '7d' ? 'CAPSULE_7D' : 'TRAJECTORY';
   const axisMode = normalizedSeries?.mode === 'PERCENT' ? 'PERCENT' : 'PRICE';
