@@ -168,47 +168,47 @@ export class DailyRunOrchestrator {
     const step6 = await this.runStep('LIFECYCLE_HOOKS', ctx, async () => {
       return await runLifecycleHooks(this.db, ctx);
     });
-    ctx.steps.push(step5);
-    
-    // ═══════════════════════════════════════════════════════════
-    // STEP 6: WARMUP_PROGRESS_WRITE
-    // ═══════════════════════════════════════════════════════════
-    const step6 = await this.runStep('WARMUP_PROGRESS_WRITE', ctx, async () => {
-      return await runWarmupProgressWrite(this.db, ctx);
-    });
     ctx.steps.push(step6);
     
     // ═══════════════════════════════════════════════════════════
-    // STEP 7: AUTO_PROMOTE
+    // STEP 7: WARMUP_PROGRESS_WRITE
     // ═══════════════════════════════════════════════════════════
-    const step7 = await this.runStep('AUTO_PROMOTE', ctx, async () => {
-      return await runAutoPromote(this.db, ctx);
+    const step7 = await this.runStep('WARMUP_PROGRESS_WRITE', ctx, async () => {
+      return await runWarmupProgressWrite(this.db, ctx);
     });
     ctx.steps.push(step7);
     
     // ═══════════════════════════════════════════════════════════
-    // STEP 8: INTEL_TIMELINE_WRITE (placeholder)
+    // STEP 8: AUTO_PROMOTE
     // ═══════════════════════════════════════════════════════════
-    const step8 = await this.runStep('INTEL_TIMELINE_WRITE', ctx, async () => {
-      return { written: false, note: 'Delegated to intel module' };
+    const step8 = await this.runStep('AUTO_PROMOTE', ctx, async () => {
+      return await runAutoPromote(this.db, ctx);
     });
     ctx.steps.push(step8);
     
     // ═══════════════════════════════════════════════════════════
-    // STEP 9: ALERTS_DISPATCH (placeholder)
+    // STEP 9: INTEL_TIMELINE_WRITE (placeholder)
     // ═══════════════════════════════════════════════════════════
-    const step9 = await this.runStep('ALERTS_DISPATCH', ctx, async () => {
-      return { sent: 0, blocked: 0, note: 'Delegated to alerts module' };
+    const step9 = await this.runStep('INTEL_TIMELINE_WRITE', ctx, async () => {
+      return { written: false, note: 'Delegated to intel module' };
     });
     ctx.steps.push(step9);
     
     // ═══════════════════════════════════════════════════════════
-    // STEP 10: INTEGRITY_GUARD
+    // STEP 10: ALERTS_DISPATCH (placeholder)
     // ═══════════════════════════════════════════════════════════
-    const step10 = await this.runStep('INTEGRITY_GUARD', ctx, async () => {
-      return await runIntegrityGuard(this.db, ctx);
+    const step10 = await this.runStep('ALERTS_DISPATCH', ctx, async () => {
+      return { sent: 0, blocked: 0, note: 'Delegated to alerts module' };
     });
     ctx.steps.push(step10);
+    
+    // ═══════════════════════════════════════════════════════════
+    // STEP 11: INTEGRITY_GUARD
+    // ═══════════════════════════════════════════════════════════
+    const step11 = await this.runStep('INTEGRITY_GUARD', ctx, async () => {
+      return await runIntegrityGuard(this.db, ctx);
+    });
+    ctx.steps.push(step11);
     
     // ═══════════════════════════════════════════════════════════
     // CAPTURE LIFECYCLE AFTER
