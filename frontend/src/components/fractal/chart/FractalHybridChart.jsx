@@ -509,105 +509,214 @@ function formatWarningFlag(flag) {
 // Old DivergenceDetails removed - now using AgreementSection above
 
 const styles = {
+  // Main container
   container: {
-    backgroundColor: '#FAFAFA',
-    border: '1px solid #EAEAEA',
-    borderRadius: 8,
-    padding: '12px 16px',
-    marginTop: 8,
+    backgroundColor: '#fff',
+    border: '1px solid #e5e7eb',
+    borderRadius: 12,
+    padding: '16px 20px',
+    marginTop: 12,
   },
+  // Header styles
   header: {
     display: 'flex',
-    alignItems: 'baseline',
-    gap: 8,
-    marginBottom: 12,
-    paddingBottom: 8,
-    borderBottom: '1px solid #EAEAEA',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottom: '1px solid #f3f4f6',
   },
-  title: {
-    fontSize: 11,
-    fontWeight: 700,
-    color: '#444',
-    letterSpacing: '0.5px',
-  },
-  subtitle: {
-    fontSize: 10,
-    color: '#888',
-  },
-  gradeBadge: {
-    marginLeft: 'auto',
-    padding: '2px 8px',
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 700,
-    color: '#fff',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
-    gap: 16,
-  },
-  column: {
-    textAlign: 'center',
-  },
-  columnHeader: {
+  headerLeft: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    fontSize: 10,
+    gap: 10,
+  },
+  headerRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 16,
+  },
+  title: {
+    fontSize: 15,
     fontWeight: 600,
-    color: '#666',
-    marginBottom: 6,
+    color: '#1f2937',
+  },
+  horizonBadge: {
+    fontSize: 11,
+    fontWeight: 500,
+    color: '#6b7280',
+    backgroundColor: '#f3f4f6',
+    padding: '4px 10px',
+    borderRadius: 6,
+  },
+  currentPrice: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontFamily: 'monospace',
+  },
+  qualityBadge: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    padding: '6px 12px',
+    backgroundColor: '#f0f9ff',
+    border: '1px solid #bae6fd',
+    borderRadius: 8,
+  },
+  qualityLabel: {
+    fontSize: 9,
+    color: '#0369a1',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  qualityValue: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#0284c7',
+    fontFamily: 'monospace',
+  },
+  // Projection grid - 2 column layout
+  projectionGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 16,
+    marginBottom: 16,
+  },
+  projectionBlock: {
+    backgroundColor: '#fafafa',
+    border: '1px solid #e5e7eb',
+    borderRadius: 10,
+    padding: '14px 16px',
+  },
+  blockHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  blockTitle: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#374151',
   },
   dot: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     borderRadius: '50%',
   },
-  value: {
-    fontSize: 18,
+  blockContent: {
+    marginBottom: 8,
+  },
+  returnValue: {
+    fontSize: 24,
     fontWeight: 700,
     fontFamily: 'monospace',
-  },
-  // U4: Price target style
-  priceTarget: {
-    fontSize: 13,
-    fontWeight: 600,
-    fontFamily: 'monospace',
-    color: '#555',
-    marginTop: 2,
     marginBottom: 4,
   },
-  // U4: Current price in header
-  currentPrice: {
-    fontSize: 10,
-    color: '#666',
+  targetPrice: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: '#4b5563',
     fontFamily: 'monospace',
-    marginLeft: 8,
   },
-  label: {
+  blockFooter: {
+    fontSize: 11,
+    color: '#9ca3af',
+    lineHeight: 1.4,
+  },
+  matchInfo: {
+    display: 'block',
     fontSize: 10,
-    color: '#888',
+    color: '#6b7280',
     marginTop: 2,
   },
   noData: {
-    fontSize: 12,
-    color: '#aaa',
+    fontSize: 13,
+    color: '#9ca3af',
     fontStyle: 'italic',
+    padding: '20px 0',
   },
-  // BLOCK 73.2: Details styles
-  detailsContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTop: '1px solid #EAEAEA',
+  // Agreement section
+  agreementContainer: {
+    backgroundColor: '#f9fafb',
+    border: '1px solid #e5e7eb',
+    borderRadius: 10,
+    padding: '14px 16px',
   },
-  detailsGrid: {
+  agreementHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  agreementTitle: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#374151',
+  },
+  agreementLevel: {
+    fontSize: 12,
+    fontWeight: 700,
+  },
+  agreementGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 8,
+    gap: 12,
+    marginBottom: 12,
   },
-  metricItem: {
+  agreementMetric: {
+    textAlign: 'center',
+  },
+  metricLabel: {
+    fontSize: 10,
+    color: '#6b7280',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: '0.3px',
+  },
+  metricValue: {
+    fontSize: 16,
+    fontWeight: 700,
+    fontFamily: 'monospace',
+    marginBottom: 2,
+  },
+  metricHint: {
+    fontSize: 9,
+    color: '#9ca3af',
+  },
+  warningsRow: {
+    display: 'flex',
+    gap: 8,
+    marginTop: 10,
+    flexWrap: 'wrap',
+  },
+  warningBadge: {
+    padding: '4px 10px',
+    backgroundColor: '#fef3c7',
+    border: '1px solid #fcd34d',
+    borderRadius: 6,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#92400e',
+  },
+  perfectMatch: {
+    marginTop: 10,
+    padding: '8px 12px',
+    backgroundColor: '#dcfce7',
+    border: '1px solid #86efac',
+    borderRadius: 6,
+    fontSize: 11,
+    fontWeight: 500,
+    color: '#166534',
+    textAlign: 'center',
+  },
+  sampleInfo: {
+    fontSize: 10,
+    color: '#9ca3af',
+    textAlign: 'right',
+    marginTop: 8,
+  },
+};
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
