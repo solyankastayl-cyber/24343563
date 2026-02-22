@@ -38,6 +38,60 @@ class FractalBackendTester:
         if details:
             print(f"    {details}")
 
+    def test_chart_endpoint(self):
+        """Test main /api/fractal/v2.1/chart endpoint"""
+        url = f"{self.base_url}/api/fractal/v2.1/chart"
+        params = {"symbol": "BTC", "limit": 365}
+        
+        try:
+            response = requests.get(url, params=params, timeout=30)
+            
+            if response.status_code != 200:
+                self.log_test(
+                    "Chart API Status", 
+                    False, 
+                    f"Status code {response.status_code}, expected 200"
+                )
+                return None
+                
+            data = response.json()
+            
+            # Check required fields for chart rendering
+            required_fields = ['candles', 'sma200']
+            missing_fields = [f for f in required_fields if f not in data]
+            
+            if missing_fields:
+                self.log_test(
+                    "Chart API Structure", 
+                    False, 
+                    f"Missing required fields: {missing_fields}"
+                )
+                return None
+                
+            candles = data.get('candles', [])
+            if len(candles) == 0:
+                self.log_test(
+                    "Chart API Data", 
+                    False, 
+                    "No candle data returned"
+                )
+                return None
+                
+            self.log_test(
+                "Chart API Data", 
+                True, 
+                f"Valid response with {len(candles)} candles"
+            )
+            return data
+                
+        except Exception as e:
+            self.log_test(
+                "Chart API Request", 
+                False, 
+                f"Request failed: {str(e)}"
+            )
+            return None
+
     def test_focus_pack_api(self, focus="30d", mode="hybrid"):
         """Test GET /api/fractal/v2.1/focus-pack with different horizons"""
         url = f"{self.base_url}/api/fractal/v2.1/focus-pack"
