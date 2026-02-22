@@ -461,83 +461,80 @@ const FractalTerminal = () => {
           </div>
         )}
 
-          {/* BLOCK 73.6: Phase Performance Heatmap */}
-          {!isLoading && (
-            <div className="mt-6">
-              <PhaseHeatmap 
-                tier={meta?.tier || 'TACTICAL'} 
-                onPhaseFilter={setPhaseId}
-              />
-            </div>
-          )}
-
-          {/* Advanced Panels (moved from main view - now in RiskBox) */}
-          {/* Detailed breakdowns kept for advanced users */}
-
-          {/* BLOCK 74.1: Horizon Stack View */}
-          {horizonStack && horizonStack.length > 0 && (
-            <HorizonStackView 
-              horizonStack={horizonStack} 
-              currentFocus={focus}
-              onFocusChange={setFocus}
+        {/* BLOCK 73.6: Phase Performance Heatmap */}
+        {!isLoading && (
+          <div className="mb-6">
+            <PhaseHeatmap 
+              tier={meta?.tier || 'TACTICAL'} 
+              onPhaseFilter={setPhaseId}
             />
-          )}
+          </div>
+        )}
 
-          {/* BLOCK 74.2: Institutional Consensus Panel */}
-          {consensus74 && (
-            <ConsensusPanel consensus74={consensus74} />
-          )}
+        {/* BLOCK 74.1: Horizon Stack View */}
+        {horizonStack && horizonStack.length > 0 && (
+          <HorizonStackView 
+            horizonStack={horizonStack} 
+            currentFocus={focus}
+            onFocusChange={setFocus}
+          />
+        )}
 
-          {/* Decision Summary Cards */}
-          {terminalData && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Consensus Card */}
-              {consensus && (
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Consensus</div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-gray-900">{(consensus.score * 100).toFixed(0)}%</span>
-                    <span className={`text-sm font-medium ${
-                      consensus.dir === 'BUY' ? 'text-green-600' : 
-                      consensus.dir === 'SELL' ? 'text-red-600' : 'text-gray-500'
-                    }`}>
-                      {consensus.dir}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">Dispersion: {(consensus.dispersion * 100).toFixed(0)}%</div>
+        {/* BLOCK 74.2: Institutional Consensus Panel */}
+        {consensus74 && (
+          <ConsensusPanel consensus74={consensus74} />
+        )}
+
+        {/* Decision Summary Cards */}
+        {terminalData && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Consensus Card */}
+            {consensus && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Consensus</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-gray-900">{(consensus.score * 100).toFixed(0)}%</span>
+                  <span className={`text-sm font-medium ${
+                    consensus.dir === 'BUY' ? 'text-green-600' : 
+                    consensus.dir === 'SELL' ? 'text-red-600' : 'text-gray-500'
+                  }`}>
+                    {consensus.dir}
+                  </span>
                 </div>
-              )}
+                <div className="text-xs text-gray-400 mt-1">Dispersion: {(consensus.dispersion * 100).toFixed(0)}%</div>
+              </div>
+            )}
 
-              {/* Conflict Card */}
-              {conflict && (
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Conflict</div>
-                  <div className="flex items-baseline gap-2">
-                    <span className={`text-lg font-bold px-2 py-0.5 rounded ${
-                      conflict.level === 'NONE' ? 'bg-green-100 text-green-700' :
-                      conflict.level === 'MILD' ? 'bg-yellow-100 text-yellow-700' :
-                      conflict.level === 'MODERATE' ? 'bg-orange-100 text-orange-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {conflict.level}
-                    </span>
-                    <span className="text-sm text-gray-500">{conflict.mode}</span>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    Structure: {conflict.tiers?.structure?.dir} | Timing: {conflict.tiers?.timing?.dir}
-                  </div>
+            {/* Conflict Card */}
+            {conflict && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Conflict</div>
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-lg font-bold px-2 py-0.5 rounded ${
+                    conflict.level === 'NONE' ? 'bg-green-100 text-green-700' :
+                    conflict.level === 'MILD' ? 'bg-yellow-100 text-yellow-700' :
+                    conflict.level === 'MODERATE' ? 'bg-orange-100 text-orange-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {conflict.level}
+                  </span>
+                  <span className="text-sm text-gray-500">{conflict.mode}</span>
                 </div>
-              )}
+                <div className="text-xs text-gray-400 mt-1">
+                  Structure: {conflict.tiers?.structure?.dir} | Timing: {conflict.tiers?.timing?.dir}
+                </div>
+              </div>
+            )}
 
-              {/* Regime Card */}
-              {volatility && (
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                  <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Vol Regime</div>
-                  <div className="flex items-baseline gap-2">
-                    <span className={`text-lg font-bold px-2 py-0.5 rounded ${
-                      volatility.regime === 'LOW' ? 'bg-green-100 text-green-700' :
-                      volatility.regime === 'NORMAL' ? 'bg-blue-100 text-blue-700' :
-                      volatility.regime === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+            {/* Regime Card */}
+            {volatility && (
+              <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Vol Regime</div>
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-lg font-bold px-2 py-0.5 rounded ${
+                    volatility.regime === 'LOW' ? 'bg-green-100 text-green-700' :
+                    volatility.regime === 'NORMAL' ? 'bg-blue-100 text-blue-700' :
+                    volatility.regime === 'HIGH' ? 'bg-orange-100 text-orange-700' :
                       volatility.regime === 'EXPANSION' ? 'bg-purple-100 text-purple-700' :
                       'bg-red-100 text-red-700'
                     }`}>
