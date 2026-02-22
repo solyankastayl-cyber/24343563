@@ -312,6 +312,53 @@ export function FractalChartCanvas({
 
       // U4: Check if cursor is in forecast zone
       if (mx > xRightAnchor && mx < xRightAnchor + forecastZoneWidth && forecast) {
+        // C) First check if hovering over tail risk line (priority over forecast day hover)
+        if (forecast?.tailFloor) {
+          // Calculate Y position of tail risk line
+          const candles = chart.candles;
+          let minY = Infinity, maxY = -Infinity;
+          for (const c of candles) {
+            if (c.l < minY) minY = c.l;
+            if (c.h > maxY) maxY = c.h;
+          }
+          if (forecast?.pricePath?.length) {
+            for (let i = 0; i < forecast.pricePath.length; i++) {
+              const upper = forecast.upperBand?.[i];
+              const lower = forecast.lowerBand?.[i];
+              if (upper && upper > maxY) maxY = upper;
+              if (lower && lower < minY) minY = lower;
+            }
+            if (forecast.tailFloor < minY) minY = forecast.tailFloor;
+          }
+          // Add padding
+          const range = maxY - minY;
+          minY -= range * 0.08;
+          maxY += range * 0.08;
+          
+          // Calculate tail Y position
+          const plotH = height - margins.top - margins.bottom;
+          const tailY = margins.top + ((maxY - forecast.tailFloor) / (maxY - minY)) * plotH;
+          
+          // Check if mouse is near tail risk line (within 12px vertically)
+          if (Math.abs(my - tailY) < 12) {
+            setTailRiskHover({
+              price: forecast.tailFloor,
+              horizon: focus?.toUpperCase() || '30D',
+              sampleSize: forecast.stats?.matchCount || forecast.matchCount || null,
+              dataMode: forecast.stats?.dataMode || forecast.dataMode || null
+            });
+            setTailRiskTooltipPos({ x: e.clientX, y: e.clientY });
+            setForecastHoverDay(-1);
+            setForecastHoverData(null);
+            setHoverIndex(null);
+            setHoveredPhase(null);
+            return;
+          }
+        }
+        
+        // Reset tail risk hover if not on the line
+        setTailRiskHover(null);
+        
         // Calculate which day in forecast we're hovering
         const dayProgress = (mx - xRightAnchor) / forecastZoneWidth;
         const day = Math.round(dayProgress * horizonDays);
@@ -346,9 +393,6 @@ export function FractalChartCanvas({
             p10: forecast?.p10Path?.[day],
             p90: forecast?.p90Path?.[day]
           });
-          
-          // C) Check if hovering over tail risk line
-          setTailRiskHover(null);
           
           return;
         }
