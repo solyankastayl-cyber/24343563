@@ -1,0 +1,52 @@
+{
+  "summary": "Completed comprehensive testing of SystemStatusPanel implementation - unified panel successfully replaces multiple duplicate components with three-column layout",
+  "backend_issues": {
+    "critical_bugs": [
+      {
+        "endpoint": "/api/fractal/v2.1/focus-pack",
+        "issue": "Returns 520 server error for different horizons (7d, 14d, 30d, 60d, 90d, 180d)",
+        "impact": "Prevents Projection Context and Data Status columns from getting complete data",
+        "fix_priority": "HIGH"
+      }
+    ],
+    "working_endpoints": [
+      {
+        "endpoint": "/api/fractal/v2.1/terminal",
+        "status": "Working correctly - returns phaseSnapshot for Market State column"
+      },
+      {
+        "endpoint": "/api/fractal/v2.1/consensus-pulse", 
+        "status": "Working correctly - returns consensus summary for Market State column"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "SystemStatusPanel displays with three columns (Market State, Projection Context, Data Status)",
+    "Market State shows Phase (Accumulation), Consensus (50), Sync State (Neutral), Structure Weight (50%), Divergence (C)",
+    "Projection Context shows Focus (30D), Window (60d), Aftermath (30d), Matches (0), Sample (0), Coverage (—), Quality (0%)",
+    "Data Status shows FALLBACK badge and matches count (appropriate during backend issues)",
+    "HorizonSelector displays 'Tactical View' without duplication",
+    "Chart Mode Switcher works correctly with Price/Replay/Hybrid modes",
+    "All interactive elements are clickable and responsive",
+    "No duplication of Window/Aftermath/Matches/Sample rows",
+    "Successfully removed ConsensusPulseStrip, FocusInfoPanel, DataStatusIndicator",
+    "Horizon selection buttons work correctly with visual state changes",
+    "Chart mode switching works correctly with visual state changes"
+  ],
+  "test_report_links": [
+    "/app/backend/system_status_panel_test.py",
+    "/app/test_reports/system_status_panel_backend_test_results.json"
+  ],
+  "success_percentage": "Backend: 31% (4/13 tests passed), Frontend: 95% (19/20 tests passed)",
+  "action_item_for_main_agent": "Fix /api/fractal/v2.1/focus-pack endpoint returning 520 errors to enable complete data population in Projection Context and Data Status columns",
+  "updated_files": [
+    "/app/backend/system_status_panel_test.py"
+  ],
+  "should_call_test_agent_after_fix": "false",
+  "should_main_agent_test_itself": "true"
+}
