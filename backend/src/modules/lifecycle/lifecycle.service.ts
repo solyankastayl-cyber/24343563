@@ -147,7 +147,7 @@ export class UnifiedLifecycleService {
   // STATUS TRANSITIONS
   // ═══════════════════════════════════════════════════════════════
   
-  private async transition(
+  async transition(
     modelId: ModelId,
     newStatus: LifecycleStatus,
     reason: string,
@@ -172,6 +172,37 @@ export class UnifiedLifecycleService {
     });
     
     return { success: true, state };
+  }
+  
+  // Alias methods for routes compatibility
+  async startWarmup(modelId: ModelId): Promise<{ success: boolean; error?: string; state?: ModelLifecycleState }> {
+    return this.forceWarmup(modelId, 30);
+  }
+  
+  async forceRevoke(modelId: ModelId, note?: string): Promise<{ success: boolean; error?: string; state?: ModelLifecycleState }> {
+    return this.revoke(modelId, note || 'Force revoked by admin');
+  }
+  
+  async validateForPromotion(modelId: ModelId): Promise<{ eligible: boolean; blockers: string[] }> {
+    const diagnostics = await this.getDiagnostics(modelId);
+    if (!diagnostics) {
+      return { eligible: false, blockers: ['Model not found'] };
+    }
+    return {
+      eligible: diagnostics.applyEligible,
+      blockers: diagnostics.applyBlockers,
+    };
+  }
+  
+  async checkAndPromote(modelId: ModelId): Promise<{ promoted: boolean; reason: string }> {
+    return this.checkAutoApply(modelId).then(r => ({
+      promoted: r.applied,
+      reason: r.reason,
+    }));
+  }
+  
+  async getRecentEvents(modelId: ModelId, limit: number = 50): Promise<LifecycleEvent[]> {
+    return this.getEvents(modelId, limit);
   }
   
   // ═══════════════════════════════════════════════════════════════
