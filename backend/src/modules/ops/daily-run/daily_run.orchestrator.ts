@@ -155,9 +155,17 @@ export class DailyRunOrchestrator {
     ctx.steps.push(step4);
     
     // ═══════════════════════════════════════════════════════════
-    // STEP 5: LIFECYCLE_HOOKS
+    // STEP 5: AUTO_WARMUP (L4.2)
     // ═══════════════════════════════════════════════════════════
-    const step5 = await this.runStep('LIFECYCLE_HOOKS', ctx, async () => {
+    const step5 = await this.runStep('AUTO_WARMUP', ctx, async () => {
+      return await runAutoWarmupStarter(this.db, ctx);
+    });
+    ctx.steps.push(step5);
+    
+    // ═══════════════════════════════════════════════════════════
+    // STEP 6: LIFECYCLE_HOOKS
+    // ═══════════════════════════════════════════════════════════
+    const step6 = await this.runStep('LIFECYCLE_HOOKS', ctx, async () => {
       return await runLifecycleHooks(this.db, ctx);
     });
     ctx.steps.push(step5);
