@@ -506,62 +506,7 @@ function formatWarningFlag(flag) {
   return labels[flag] || flag;
 }
 
-/**
- * Detailed divergence metrics panel
- */
-function DivergenceDetails({ divergence, hasWarnings }) {
-  const { rmse, mape, corr, terminalDelta, directionalMismatch, flags, samplePoints } = divergence;
-  
-  return (
-    <div style={styles.detailsContainer}>
-      <div style={styles.detailsGrid}>
-        <MetricItem label="Correlation" value={corr?.toFixed(2)} warning={corr < 0.3} />
-        <MetricItem label="Terminal Δ" value={`${terminalDelta >= 0 ? '+' : ''}${terminalDelta?.toFixed(1)}%`} warning={Math.abs(terminalDelta) > 20} />
-        <MetricItem label="Dir Mismatch" value={`${directionalMismatch?.toFixed(0)}%`} warning={directionalMismatch > 55} />
-        <MetricItem label="Sample" value={samplePoints} />
-      </div>
-      
-      {/* Warning flags */}
-      {hasWarnings && flags.length > 0 && (
-        <div style={styles.flagsRow}>
-          {flags.filter(f => f !== 'PERFECT_MATCH').map((flag, i) => (
-            <span key={i} style={styles.flag}>
-              {formatFlag(flag)}
-            </span>
-          ))}
-        </div>
-      )}
-      
-      {/* Perfect match indicator */}
-      {flags.includes('PERFECT_MATCH') && (
-        <div style={styles.perfectMatch}>
-          ✓ PERFECT ALIGNMENT
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MetricItem({ label, value, warning }) {
-  return (
-    <div style={styles.metricItem}>
-      <span style={styles.metricLabel}>{label}</span>
-      <span style={{ ...styles.metricValue, color: warning ? '#f59e0b' : '#444' }}>
-        {value ?? '—'}
-      </span>
-    </div>
-  );
-}
-
-function formatFlag(flag) {
-  const labels = {
-    'HIGH_DIVERGENCE': 'High Divergence',
-    'LOW_CORR': 'Low Correlation',
-    'TERM_DRIFT': 'Terminal Drift',
-    'DIR_MISMATCH': 'Direction Mismatch',
-  };
-  return labels[flag] || flag;
-}
+// Old DivergenceDetails removed - now using AgreementSection above
 
 const styles = {
   container: {
