@@ -17,14 +17,42 @@ export function StrategyPanel({ symbol = 'BTC' }) {
   const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`${API_URL}/api/fractal/v2.1/strategy?symbol=${symbol}&preset=${preset}`)
-      .then(r => r.json())
-      .then(d => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    let cancelled = false;
+    
+    const fetchStrategy = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/fractal/v2.1/strategy?symbol=${symbol}&preset=${preset}`);
+        
+        if (cancelled) return;
+        
+        // Check res.ok before parsing JSON
+        if (!res.ok) {
+          console.error('[StrategyPanel] HTTP error:', res.status);
+          setData(null);
+          setLoading(false);
+          return;
+        }
+        
+        const json = await res.json();
+        
+        if (cancelled) return;
+        
+        setData(json);
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[StrategyPanel] Fetch error:', err);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchStrategy();
+    
+    return () => { cancelled = true; };
   }, [symbol, preset, API_URL]);
 
   if (loading && !data) {
