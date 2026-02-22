@@ -27,40 +27,51 @@ export default function ForwardPerformancePanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    
+  useEffect(() => {
+    let cancelled = false;
     const controller = new AbortController();
     
-    try {
-      const apiUrl = process.env.REACT_APP_BACKEND_URL || '';
-      const url = `${apiUrl}/api/fractal/v2.1/admin/forward-equity?symbol=BTC&preset=${preset}&horizon=${horizon}&role=${role}`;
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       
-      const res = await fetch(url, { signal: controller.signal });
-      const json = await res.json();
-      
-      if (!res.ok || json.error) {
-        setError(json.message || json.error || `HTTP ${res.status}`);
-        setData(null);
-      } else {
-        setData(json);
-        setError(null);
+      try {
+        const apiUrl = process.env.REACT_APP_BACKEND_URL || '';
+        const url = `${apiUrl}/api/fractal/v2.1/admin/forward-equity?symbol=BTC&preset=${preset}&horizon=${horizon}&role=${role}`;
+        
+        const res = await fetch(url, { signal: controller.signal });
+        
+        if (cancelled) return;
+        
+        const json = await res.json();
+        
+        if (cancelled) return;
+        
+        if (!res.ok || json.error) {
+          setError(json.message || json.error || `HTTP ${res.status}`);
+          setData(null);
+        } else {
+          setData(json);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled && err.name !== 'AbortError') {
+          setError(err.message || 'Failed to fetch');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        setError(err.message || 'Failed to fetch');
-      }
-    } finally {
-      setLoading(false);
-    }
+    };
     
-    return () => controller.abort();
-  }, [preset, horizon, role]);
-
-  useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [preset, horizon, role]);
 
   return (
     <div className="forward-performance-panel" style={styles.container}>
