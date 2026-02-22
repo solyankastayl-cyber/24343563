@@ -207,8 +207,8 @@ export function FractalChartCanvas({
   const axisMode = normalizedSeries?.mode === 'PERCENT' ? 'PERCENT' : 'PRICE';
   const isPercentMode = axisMode === 'PERCENT';
 
-  // Increased right margin for forecast zone (enough for full 30d + labels)
-  const margins = useMemo(() => ({ left: 70, right: 320, top: 24, bottom: 36 }), []);
+  // Increased margins: top for Y-axis labels, right for forecast zone (180d+ horizons)
+  const margins = useMemo(() => ({ left: 70, right: 350, top: 36, bottom: 36 }), []);
   
   // BLOCK 73.5.1: Phase zones from chart
   const phaseZones = useMemo(() => chart?.phaseZones || [], [chart]);
