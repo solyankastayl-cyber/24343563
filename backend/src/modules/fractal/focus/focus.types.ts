@@ -255,6 +255,60 @@ export interface PhaseFilterInfo {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// U6 — SCENARIO PACK
+// ═══════════════════════════════════════════════════════════════
+
+export type ScenarioModel = 'synthetic' | 'replay' | 'hybrid';
+export type ScenarioDataStatus = 'REAL' | 'FALLBACK';
+
+export interface ScenarioCase {
+  label: 'Bear' | 'Base' | 'Bull';
+  percentile: 'P10' | 'P50' | 'P90';
+  return: number;           // e.g., -0.207 for -20.7%
+  targetPrice: number;      // basePrice * (1 + return)
+  horizonLabel: string;     // e.g., "+30d"
+}
+
+export interface ScenarioPack {
+  horizonDays: number;           // 7 | 14 | 30 | 90 | 180 | 365
+  asOfDate: string;              // YYYY-MM-DD
+  basePrice: number;             // spot price at NOW
+  
+  // Return percentiles
+  returns: {
+    p10: number;                 // Bear case return (e.g., -0.207)
+    p50: number;                 // Base case return (e.g., 0.028)
+    p90: number;                 // Bull case return (e.g., 0.17)
+  };
+  
+  // Target prices (basePrice * (1 + return))
+  targets: {
+    p10: number;                 // Bear target price
+    p50: number;                 // Base target price
+    p90: number;                 // Bull target price
+  };
+  
+  // Outcome probabilities
+  probUp: number;                // Probability of positive outcome (0-1)
+  probDown: number;              // Probability of negative outcome (0-1)
+  
+  // Risk metrics
+  avgMaxDD: number;              // Average max drawdown within horizon (e.g., -0.167)
+  tailRiskP95: number;           // 95th percentile worst case (e.g., -0.50)
+  
+  // Data quality
+  sampleSize: number;            // Number of historical matches used
+  dataStatus: ScenarioDataStatus;
+  fallbackReason?: string;       // e.g., "insufficient_coverage", "no_matches"
+  
+  // Model source
+  model: ScenarioModel;          // Which model produced this scenario
+  
+  // Pre-built scenario cards for frontend
+  cases: ScenarioCase[];
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN FOCUS PACK
 // ═══════════════════════════════════════════════════════════════
 
