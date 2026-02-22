@@ -43,12 +43,19 @@ export default function ForwardPerformancePanel() {
         
         if (cancelled) return;
         
+        // Check res.ok BEFORE calling res.json()
+        if (!res.ok) {
+          setError(`HTTP ${res.status}`);
+          setData(null);
+          return;
+        }
+        
         const json = await res.json();
         
         if (cancelled) return;
         
-        if (!res.ok || json.error) {
-          setError(json.message || json.error || `HTTP ${res.status}`);
+        if (json.error) {
+          setError(json.message || json.error);
           setData(null);
         } else {
           setData(json);
