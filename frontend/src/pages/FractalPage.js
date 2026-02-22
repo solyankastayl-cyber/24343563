@@ -351,29 +351,23 @@ const FractalTerminal = () => {
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="fractal-terminal">
-      {/* Header - minimal */}
+      {/* Header - clean, minimal */}
       <header className="bg-white border-b border-slate-200">
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-slate-900">Fractal Terminal</h1>
-            <span className="px-2 py-0.5 bg-slate-100 rounded text-xs font-medium text-slate-600">
-              {symbol}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <AsOfDatePicker 
-              asOf={asOf}
-              mode={mode}
-              onAsOfChange={setAsOf}
-              onModeChange={setMode}
-              lastCandle={terminalData?.lastCandle || '2026-02-20'}
-            />
-            <span className="text-xs text-slate-400">v6</span>
-          </div>
+        <div className="flex items-center justify-between px-6 py-4">
+          <h1 className="text-xl font-bold text-slate-900">
+            BTC Fractal
+          </h1>
+          <AsOfDatePicker 
+            asOf={asOf}
+            mode={mode}
+            onAsOfChange={setAsOf}
+            onModeChange={setMode}
+            lastCandle={terminalData?.lastCandle || '2026-02-20'}
+          />
         </div>
       </header>
       
-      {/* UNIFIED CONTROL ROW — Single compact row */}
+      {/* UNIFIED CONTROL ROW — Status | Mode | Horizon */}
       <UnifiedControlRow
         signal={signal}
         confidence={confidenceLevel}
