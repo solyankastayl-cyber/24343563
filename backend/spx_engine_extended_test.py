@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 import sys
 
-BASE_URL = 'https://regime-intelligence.preview.emergentagent.com'
+BASE_URL = 'https://fractal-interface-v2.preview.emergentagent.com'
 
 def test_edge_cases():
     """Test edge cases and error conditions"""

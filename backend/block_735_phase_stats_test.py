@@ -21,7 +21,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 class PhaseHoverIntelligenceTest:
-    def __init__(self, base_url_external="https://regime-intelligence.preview.emergentagent.com", 
+    def __init__(self, base_url_external="https://fractal-interface-v2.preview.emergentagent.com", 
                  base_url_local="http://localhost:8001"):
         # Agent notes mention using localhost:8001 due to external ingress issues
         self.base_url_external = base_url_external

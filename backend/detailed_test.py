@@ -47,7 +47,7 @@ def test_endpoint_response(url, method="GET", data=None, params=None):
         print()
 
 def main():
-    base_url = "https://regime-intelligence.preview.emergentagent.com"
+    base_url = "https://fractal-interface-v2.preview.emergentagent.com"
     
     print("🧪 Detailed Fractal Backend Response Validation")
     print("="*60)
