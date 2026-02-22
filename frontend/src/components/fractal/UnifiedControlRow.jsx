@@ -34,7 +34,7 @@ const MODES = [
 /**
  * Signal Badge with Icon and Tooltip
  */
-function SignalBadge({ signal, confidence, marketMode, risk }) {
+function SignalBadge({ signal, confidence, marketMode, risk, horizon }) {
   const [showTooltip, setShowTooltip] = useState(false);
   
   // Signal config
@@ -114,9 +114,15 @@ function SignalBadge({ signal, confidence, marketMode, risk }) {
         
         {/* Text */}
         <div className="flex flex-col">
-          <span className={`text-lg font-bold ${config.textColor}`}>
-            {signal}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`text-lg font-bold ${config.textColor}`}>
+              {signal}
+            </span>
+            {/* Global indicator */}
+            <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 text-slate-500 rounded font-medium">
+              GLOBAL
+            </span>
+          </div>
           <span className="text-xs text-slate-500">
             {confidence} · {marketMode}
           </span>
@@ -144,8 +150,12 @@ function SignalBadge({ signal, confidence, marketMode, risk }) {
               <div className="flex items-center gap-2 mb-1">
                 <Icon className="w-4 h-4" />
                 <span className="font-semibold">{signal} Signal</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-slate-700 rounded">Global</span>
               </div>
               <p className="text-slate-300 text-xs">{config.description}</p>
+              <p className="text-slate-400 text-[10px] mt-1 italic">
+                Signal is aggregated across all horizons and does not change with horizon selection.
+              </p>
             </div>
             
             {/* Confidence */}
