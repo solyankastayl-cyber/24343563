@@ -1,12 +1,19 @@
 /**
- * BLOCK L2 — Lifecycle Tab
- * Unified lifecycle observability panel for BTC and SPX
+ * BLOCK L2 + L3 — Lifecycle Tab
+ * 
+ * Unified lifecycle observability + governance controls
+ * - Constitution Binding (L3.1)
+ * - Drift Auto-Revoke (L3.2) 
+ * - Drift Recovery (L3.3)
+ * - State Integrity (L3.4)
+ * - Auto-Promotion (L3.5)
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   RefreshCw, AlertTriangle, CheckCircle, Clock, 
-  Play, Square, RotateCcw, Zap, Shield, Activity
+  Play, Square, RotateCcw, Zap, Shield, Activity,
+  Hash, TrendingUp, AlertCircle, ShieldCheck, ArrowUpCircle
 } from 'lucide-react';
 import {
   fetchLifecycleState,
@@ -16,6 +23,10 @@ import {
   revokeModel,
   resetSimulation,
   initializeLifecycle,
+  applyConstitution,
+  updateDrift,
+  incrementLiveSamples,
+  checkIntegrity,
 } from '../../../api/lifecycle.api';
 
 // Status badge colors
@@ -28,10 +39,10 @@ const STATUS_CONFIG = {
 };
 
 const DRIFT_CONFIG = {
-  OK: { color: 'text-emerald-600', bg: 'bg-emerald-50' },
-  WATCH: { color: 'text-amber-600', bg: 'bg-amber-50' },
-  WARN: { color: 'text-orange-600', bg: 'bg-orange-50' },
-  CRITICAL: { color: 'text-red-600', bg: 'bg-red-50' },
+  OK: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  WATCH: { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+  WARN: { color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+  CRITICAL: { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
 };
 
 const MODE_CONFIG = {
@@ -83,6 +94,117 @@ function CombinedStatusCard({ combined }) {
   );
 }
 
+// L3 Dev Controls Panel
+function DevControlsPanel({ onAction, loading, systemMode }) {
+  const [selectedAsset, setSelectedAsset] = useState('BTC');
+  const [driftLevel, setDriftLevel] = useState('OK');
+  const [constitutionHash, setConstitutionHash] = useState('');
+  const [sampleCount, setSampleCount] = useState(1);
+
+  if (systemMode !== 'DEV') return null;
+
+  return (
+    <div className="bg-purple-50 rounded-xl border border-purple-200 p-4 mb-6">
+      <div className="flex items-center gap-2 mb-4">
+        <ShieldCheck className="w-5 h-5 text-purple-600" />
+        <h3 className="font-semibold text-purple-900">DEV Controls (L3 Testing)</h3>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Asset Selector */}
+        <div>
+          <label className="text-xs text-gray-600 block mb-1">Asset</label>
+          <select 
+            value={selectedAsset} 
+            onChange={e => setSelectedAsset(e.target.value)}
+            className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+          >
+            <option value="BTC">BTC</option>
+            <option value="SPX">SPX</option>
+          </select>
+        </div>
+        
+        {/* Drift Simulator */}
+        <div>
+          <label className="text-xs text-gray-600 block mb-1">Drift Level</label>
+          <div className="flex gap-1">
+            <select 
+              value={driftLevel} 
+              onChange={e => setDriftLevel(e.target.value)}
+              className="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm"
+            >
+              <option value="OK">OK</option>
+              <option value="WATCH">WATCH</option>
+              <option value="WARN">WARN</option>
+              <option value="CRITICAL">CRITICAL</option>
+            </select>
+            <button
+              onClick={() => onAction('drift', selectedAsset, { severity: driftLevel })}
+              disabled={loading}
+              className="px-2 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 disabled:opacity-50"
+            >
+              Set
+            </button>
+          </div>
+        </div>
+        
+        {/* Live Samples */}
+        <div>
+          <label className="text-xs text-gray-600 block mb-1">Add Samples</label>
+          <div className="flex gap-1">
+            <input 
+              type="number" 
+              min="1" 
+              max="30"
+              value={sampleCount}
+              onChange={e => setSampleCount(parseInt(e.target.value) || 1)}
+              className="w-16 px-2 py-1.5 border border-gray-200 rounded text-sm"
+            />
+            <button
+              onClick={() => onAction('samples', selectedAsset, { count: sampleCount })}
+              disabled={loading}
+              className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              +{sampleCount}
+            </button>
+          </div>
+        </div>
+        
+        {/* Constitution Hash */}
+        <div>
+          <label className="text-xs text-gray-600 block mb-1">Constitution</label>
+          <div className="flex gap-1">
+            <input 
+              type="text" 
+              placeholder="hash..."
+              value={constitutionHash}
+              onChange={e => setConstitutionHash(e.target.value)}
+              className="flex-1 px-2 py-1.5 border border-gray-200 rounded text-sm font-mono"
+            />
+            <button
+              onClick={() => onAction('constitution', selectedAsset, { hash: constitutionHash || `hash_${Date.now()}` })}
+              disabled={loading}
+              className="px-2 py-1 bg-indigo-500 text-white text-xs rounded hover:bg-indigo-600 disabled:opacity-50"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-3 pt-3 border-t border-purple-200 flex gap-2">
+        <button
+          onClick={() => onAction('integrity', selectedAsset)}
+          disabled={loading}
+          className="px-3 py-1.5 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 disabled:opacity-50 flex items-center gap-1"
+        >
+          <ShieldCheck className="w-4 h-4" /> Check Integrity
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Lifecycle Card for BTC/SPX
 function LifecycleCard({ state, onAction, loading }) {
   if (!state) return null;
@@ -94,11 +216,13 @@ function LifecycleCard({ state, onAction, loading }) {
   
   const warmupProgress = state.warmup?.progressPct || 0;
   const liveSamples = state.live?.liveSamples || 0;
+  const isRevoked = state.status === 'REVOKED';
+  const isApplied = state.status === 'APPLIED' || state.status === 'APPLIED_MANUAL';
   
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className={`bg-white rounded-xl border shadow-sm overflow-hidden ${isRevoked ? 'border-red-300' : 'border-gray-200'}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <div className={`px-4 py-3 border-b flex items-center justify-between ${isRevoked ? 'bg-red-50 border-red-200' : 'border-gray-100'}`}>
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${state.modelId === 'BTC' ? 'bg-orange-500' : 'bg-blue-500'}`}>
             <span className="text-white font-bold text-sm">{state.modelId}</span>
@@ -121,6 +245,17 @@ function LifecycleCard({ state, onAction, loading }) {
       
       {/* Body */}
       <div className="p-4 space-y-4">
+        {/* Revoked Warning */}
+        {isRevoked && (
+          <div className="p-3 bg-red-100 rounded-lg border border-red-300 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-800">Model Revoked</p>
+              <p className="text-xs text-red-600">Drift protection triggered. Re-enter warmup to reactivate.</p>
+            </div>
+          </div>
+        )}
+        
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 bg-gray-50 rounded-lg">
@@ -128,13 +263,13 @@ function LifecycleCard({ state, onAction, loading }) {
             <p className="text-lg font-semibold text-gray-900">{liveSamples}/30</p>
             <div className="mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 transition-all duration-300"
+                className={`h-full transition-all duration-300 ${liveSamples >= 30 ? 'bg-emerald-500' : 'bg-blue-500'}`}
                 style={{ width: `${Math.min(100, (liveSamples / 30) * 100)}%` }}
               />
             </div>
           </div>
           
-          <div className={`p-3 rounded-lg ${driftConfig.bg}`}>
+          <div className={`p-3 rounded-lg border ${driftConfig.bg} ${driftConfig.border}`}>
             <p className="text-xs text-gray-500">Drift Severity</p>
             <p className={`text-lg font-semibold ${driftConfig.color}`}>
               {state.drift?.severity || 'OK'}
@@ -166,13 +301,21 @@ function LifecycleCard({ state, onAction, loading }) {
           </div>
         )}
         
-        {/* Constitution Hash */}
-        {state.constitutionHash && (
-          <div className="p-3 bg-gray-50 rounded-lg">
+        {/* Constitution Hash (L3.1) */}
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
+            <Hash className="w-4 h-4 text-gray-400" />
             <p className="text-xs text-gray-500">Constitution Hash</p>
-            <p className="font-mono text-xs text-gray-600 truncate">{state.constitutionHash}</p>
           </div>
-        )}
+          <p className="font-mono text-xs text-gray-600 truncate">
+            {state.constitutionHash || '—'}
+          </p>
+          {state.governanceAppliedAt && (
+            <p className="text-xs text-gray-400 mt-1">
+              Applied: {new Date(state.governanceAppliedAt).toLocaleString()}
+            </p>
+          )}
+        </div>
         
         {/* Actions */}
         <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
@@ -189,14 +332,25 @@ function LifecycleCard({ state, onAction, loading }) {
           {(state.status === 'WARMUP' || state.status === 'SIMULATION') && (
             <button
               onClick={() => onAction('apply', state.modelId)}
-              disabled={loading}
+              disabled={loading || state.drift?.severity === 'CRITICAL'}
               className="px-3 py-1.5 bg-emerald-500 text-white text-sm rounded-lg hover:bg-emerald-600 disabled:opacity-50 flex items-center gap-1"
+              title={state.drift?.severity === 'CRITICAL' ? 'Blocked: drift CRITICAL' : ''}
             >
               <CheckCircle className="w-3 h-3" /> Force Apply
             </button>
           )}
           
-          {(state.status === 'APPLIED' || state.status === 'APPLIED_MANUAL') && (
+          {isRevoked && (
+            <button
+              onClick={() => onAction('warmup', state.modelId)}
+              disabled={loading}
+              className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1"
+            >
+              <ArrowUpCircle className="w-3 h-3" /> Re-Enter Warmup
+            </button>
+          )}
+          
+          {isApplied && (
             <button
               onClick={() => onAction('revoke', state.modelId)}
               disabled={loading}
@@ -242,8 +396,11 @@ function LifecycleTimeline({ events }) {
     RESET_SIMULATION: 'bg-gray-500',
     DRIFT_WARN: 'bg-orange-500',
     DRIFT_CRITICAL: 'bg-red-600',
+    DRIFT_CRITICAL_REVOKE: 'bg-red-700',
+    DRIFT_RECOVERY_WARMUP: 'bg-blue-600',
     DEV_TRUTH_MODE: 'bg-purple-500',
-    CONSTITUTION_UPDATE: 'bg-indigo-500',
+    CONSTITUTION_APPLIED: 'bg-indigo-500',
+    STATE_AUTOFIX: 'bg-pink-500',
   };
   
   return (
@@ -252,7 +409,7 @@ function LifecycleTimeline({ events }) {
         <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
           <div className={`w-2 h-2 mt-2 rounded-full ${eventTypeColors[event.type] || 'bg-gray-400'}`} />
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-medium text-sm text-gray-900">{event.type}</span>
               <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{event.modelId}</span>
               <span className="text-xs text-gray-400">{event.actor}</span>
@@ -261,7 +418,7 @@ function LifecycleTimeline({ events }) {
               {new Date(event.ts).toLocaleString()}
             </p>
             {event.meta && Object.keys(event.meta).length > 0 && (
-              <pre className="mt-1 text-xs text-gray-500 bg-white p-1 rounded overflow-x-auto">
+              <pre className="mt-1 text-xs text-gray-500 bg-white p-1 rounded overflow-x-auto max-w-full">
                 {JSON.stringify(event.meta, null, 2)}
               </pre>
             )}
@@ -280,6 +437,12 @@ export default function LifecycleTab() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
   const [eventFilter, setEventFilter] = useState('all');
+  const [toast, setToast] = useState(null);
+  
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
   
   const loadData = useCallback(async () => {
     try {
@@ -301,11 +464,11 @@ export default function LifecycleTab() {
   
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 30000);
+    const interval = setInterval(loadData, 15000);
     return () => clearInterval(interval);
   }, [loadData]);
   
-  const handleAction = async (action, asset) => {
+  const handleAction = async (action, asset, params = {}) => {
     setActionLoading(true);
     try {
       let result;
@@ -322,17 +485,41 @@ export default function LifecycleTab() {
         case 'reset':
           result = await resetSimulation(asset, 'Admin reset to simulation');
           break;
+        case 'drift':
+          result = await updateDrift(asset, params.severity);
+          if (result.ok && result.data?.revoked) {
+            showToast(`${asset} auto-revoked due to CRITICAL drift`, 'error');
+          }
+          break;
+        case 'samples':
+          result = await incrementLiveSamples(asset, params.count);
+          if (result.ok && result.data?.promoted) {
+            showToast(`${asset} auto-promoted to APPLIED!`, 'success');
+          }
+          break;
+        case 'constitution':
+          result = await applyConstitution(asset, params.hash);
+          if (result.ok && result.data?.newStatus === 'WARMUP') {
+            showToast(`${asset} reset to WARMUP (constitution changed)`, 'warning');
+          }
+          break;
+        case 'integrity':
+          result = await checkIntegrity(asset);
+          if (result.ok && !result.data?.integrityResult?.valid) {
+            showToast(`${asset} state normalized: ${result.data?.integrityResult?.fixes?.join(', ')}`, 'warning');
+          }
+          break;
         default:
           break;
       }
       
       if (result && !result.ok) {
-        alert(`Error: ${result.error}`);
+        showToast(`Error: ${result.error}`, 'error');
       }
       
       await loadData();
     } catch (err) {
-      alert(`Action failed: ${err.message}`);
+      showToast(`Action failed: ${err.message}`, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -343,12 +530,13 @@ export default function LifecycleTab() {
     try {
       const result = await initializeLifecycle();
       if (result.ok) {
+        showToast('States initialized', 'success');
         await loadData();
       } else {
-        alert(`Init failed: ${result.error}`);
+        showToast(`Init failed: ${result.error}`, 'error');
       }
     } catch (err) {
-      alert(`Init failed: ${err.message}`);
+      showToast(`Init failed: ${err.message}`, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -363,14 +551,27 @@ export default function LifecycleTab() {
   }
   
   const noStates = !data?.states || data.states.length === 0;
+  const systemMode = data?.btc?.systemMode || data?.spx?.systemMode || 'DEV';
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6" data-testid="lifecycle-tab">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+          toast.type === 'error' ? 'bg-red-500 text-white' :
+          toast.type === 'success' ? 'bg-emerald-500 text-white' :
+          toast.type === 'warning' ? 'bg-amber-500 text-white' :
+          'bg-blue-500 text-white'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+      
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Lifecycle Management</h2>
-          <p className="text-sm text-gray-500">BTC & SPX lifecycle observability and control</p>
+          <p className="text-sm text-gray-500">BTC & SPX lifecycle observability and control (L2+L3)</p>
         </div>
         <div className="flex items-center gap-2">
           {noStates && (
@@ -397,6 +598,13 @@ export default function LifecycleTab() {
           {error}
         </div>
       )}
+      
+      {/* DEV Controls (L3 Testing) */}
+      <DevControlsPanel 
+        onAction={handleAction}
+        loading={actionLoading}
+        systemMode={systemMode}
+      />
       
       {/* Combined Status */}
       <CombinedStatusCard combined={data?.combined} />
