@@ -34,9 +34,24 @@ export default function ForwardPerformancePanel() {
       const apiUrl = process.env.REACT_APP_BACKEND_URL || '';
       const url = `${apiUrl}/api/fractal/v2.1/admin/forward-equity?symbol=BTC&preset=${preset}&horizon=${horizon}&role=${role}`;
       const res = await fetch(url);
+      
+      // Clone response before checking ok to avoid "body already read" error
+      const resClone = res.clone();
+      
+      if (!res.ok) {
+        // Try to get error message from response
+        try {
+          const errorData = await resClone.json();
+          setError(errorData.message || `HTTP ${res.status}`);
+        } catch {
+          setError(`HTTP ${res.status}`);
+        }
+        return;
+      }
+      
       const json = await res.json();
       if (json.error) {
-        setError(json.message);
+        setError(json.message || 'Unknown error');
       } else {
         setData(json);
       }
