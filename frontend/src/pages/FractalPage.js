@@ -254,7 +254,7 @@ const FractalTerminal = () => {
   const [terminalLoading, setTerminalLoading] = useState(true);
   const symbol = 'BTC';
   
-  // BLOCK 70.2 + 73.5.2: Use focus-specific data with phase filter support
+  // BLOCK 70.2 + 73.5.2 + U2: Use focus-specific data with phase filter and as-of support
   const { 
     data: focusData, 
     loading: focusLoading, 
@@ -267,7 +267,12 @@ const FractalTerminal = () => {
     // BLOCK 73.5.2: Phase filter controls
     phaseId,
     setPhaseId,
-    phaseFilter
+    phaseFilter,
+    // BLOCK U2: As-of date controls
+    asOf,
+    setAsOf,
+    mode,
+    setMode,
   } = useFocusPack(symbol, focus);
 
   // Fetch legacy terminal data (for volatility, sizing, etc.)
