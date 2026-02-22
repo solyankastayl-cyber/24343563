@@ -452,7 +452,8 @@ class FractalAPITester:
         )
         
         if success and data:
-            scenario = data.get('scenario', {})
+            focus_pack = data.get('focusPack', data)
+            scenario = focus_pack.get('scenario', {})
             if not scenario:
                 self.issues.append("U6: Missing scenario for data status test")
                 return False, data
