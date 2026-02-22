@@ -1,0 +1,87 @@
+{
+  "summary": "System Status Panel Backend Testing",
+  "tests_passed": 2,
+  "tests_total": 13,
+  "success_rate": "15.4%",
+  "timestamp": "2026-02-22T17:33:17.211972",
+  "test_details": [
+    {
+      "test_name": "Fractal Terminal API (BTC)",
+      "passed": true,
+      "details": "API returns phaseSnapshot with phase: ACCUMULATION",
+      "timestamp": "2026-02-22T17:33:15.782200"
+    },
+    {
+      "test_name": "PhaseSnapshot Structure",
+      "passed": true,
+      "details": "Phase: ACCUMULATION, Strength: 0.332",
+      "timestamp": "2026-02-22T17:33:15.782808"
+    },
+    {
+      "test_name": "Consensus Pulse API (BTC)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:15.953218"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 30d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:16.098774"
+    },
+    {
+      "test_name": "Market State Data Completeness",
+      "passed": false,
+      "details": "Issues: ['Missing consensus summary']",
+      "timestamp": "2026-02-22T17:33:16.099385"
+    },
+    {
+      "test_name": "Projection Context Data Completeness",
+      "passed": false,
+      "details": "Issues: ['Missing focus meta', 'Missing matchesCount']",
+      "timestamp": "2026-02-22T17:33:16.099405"
+    },
+    {
+      "test_name": "Data Status Column Completeness",
+      "passed": false,
+      "details": "Issues: ['Missing diagnostics', 'No historical matches available']",
+      "timestamp": "2026-02-22T17:33:16.099413"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 7d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:16.222950"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 14d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:16.560762"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 30d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:16.704847"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 60d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:16.940573"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 90d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:17.065591"
+    },
+    {
+      "test_name": "Focus Pack API (BTC, 180d)",
+      "passed": false,
+      "details": "Status code 404, expected 200",
+      "timestamp": "2026-02-22T17:33:17.210062"
+    }
+  ]
+}
