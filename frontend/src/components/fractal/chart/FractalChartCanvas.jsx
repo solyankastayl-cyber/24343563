@@ -440,6 +440,7 @@ export function FractalChartCanvas({
       setHoveredPhase(null);
       setForecastHoverDay(-1);
       setForecastHoverData(null);
+      setTailRiskHover(null);
     };
     
     // BLOCK 73.5.2: Handle phase click
