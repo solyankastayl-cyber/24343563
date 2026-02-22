@@ -911,7 +911,7 @@ function PhaseFilterBar({ phaseFilter, phaseStats, onClear }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '10px 16px',
+        padding: '12px 18px',
         backgroundColor: colors.bg,
         borderBottom: `2px solid ${colors.border}`,
       }}
@@ -921,49 +921,48 @@ function PhaseFilterBar({ phaseFilter, phaseStats, onClear }) {
         <span style={{
           backgroundColor: colors.border,
           color: '#fff',
-          padding: '4px 10px',
-          borderRadius: 4,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.5px',
+          padding: '5px 12px',
+          borderRadius: 6,
+          fontSize: 12,
+          fontWeight: 600,
         }}>
-          {phaseFilter.phaseType}
+          {phaseInfo.label}
         </span>
-        <span style={{ fontSize: 12, color: colors.text }}>
+        <span style={{ fontSize: 13, color: colors.text, fontWeight: 500 }}>
           Phase Filter Active
         </span>
-        <span style={{ fontSize: 11, color: '#666' }}>
-          {phaseFilter.filteredMatchCount} matches in this phase type
+        <span style={{ fontSize: 12, color: '#6b7280' }}>
+          {phaseFilter.filteredMatchCount} matches in {phaseInfo.label.toLowerCase()} phase
         </span>
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         {phaseStats && (
-          <span style={{ fontSize: 11, color: '#666' }}>
-            Return: <span style={{ 
+          <span style={{ fontSize: 12, color: '#4b5563' }}>
+            Avg Return: <span style={{ 
               fontWeight: 600, 
               color: phaseStats.phaseReturnPct >= 0 ? '#16a34a' : '#dc2626' 
             }}>
               {phaseStats.phaseReturnPct >= 0 ? '+' : ''}{phaseStats.phaseReturnPct?.toFixed(1)}%
             </span>
-            {' | '}
-            Duration: {phaseStats.durationDays}d
+            <span style={{ color: '#9ca3af', margin: '0 6px' }}>|</span>
+            Avg Duration: {phaseStats.durationDays}d
           </span>
         )}
         <button
           onClick={onClear}
           data-testid="clear-phase-filter"
           style={{
-            padding: '4px 12px',
+            padding: '6px 14px',
             backgroundColor: '#fff',
-            border: '1px solid #d4d4d4',
+            border: '1px solid #d1d5db',
             borderRadius: 6,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 500,
             cursor: 'pointer',
             transition: 'all 0.15s ease',
           }}
-          onMouseOver={(e) => { e.target.style.backgroundColor = '#f5f5f5'; }}
+          onMouseOver={(e) => { e.target.style.backgroundColor = '#f3f4f6'; }}
           onMouseOut={(e) => { e.target.style.backgroundColor = '#fff'; }}
         >
           Clear Filter
