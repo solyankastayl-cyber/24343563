@@ -19,16 +19,15 @@ import { SizingBreakdown } from '../components/fractal/SizingBreakdown';
 import { HorizonStackView } from '../components/fractal/HorizonStackView';
 import { ConsensusPanel } from '../components/fractal/ConsensusPanel';
 import { HorizonSelector, HorizonPills } from '../components/fractal/HorizonSelector';
-import { FocusInfoPanel, FocusStatsBadge } from '../components/fractal/FocusInfoPanel';
+import { SystemStatusPanel } from '../components/fractal/SystemStatusPanel';
 import { PhaseHeatmap } from '../components/fractal/PhaseHeatmap';
-import { ConsensusPulseStrip } from '../components/fractal/ConsensusPulseStrip';
 import { PhaseStrengthBadge } from '../components/fractal/PhaseStrengthBadge';
 import { AsOfDatePicker } from '../components/fractal/AsOfDatePicker';
-import { DataStatusIndicator } from '../components/fractal/DataStatusIndicator';
 import { SignalHeader } from '../components/fractal/SignalHeader';
 import { ScenarioBox } from '../components/fractal/ScenarioBox';
 import { RiskBox } from '../components/fractal/RiskBox';
 import { useFocusPack, HORIZONS, getTierColor, getTierLabel } from '../hooks/useFocusPack';
+import { useConsensusPulse } from '../hooks/useConsensusPulse';
 
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
