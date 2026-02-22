@@ -259,6 +259,12 @@ export function PhaseHeatmap({ tier = 'TACTICAL', onPhaseFilter }) {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}/api/fractal/v2.1/admin/phase-performance?symbol=BTC&tier=${tier}`);
+      
+      // Check if response is ok before parsing JSON
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      
       const result = await res.json();
       
       if (result.ok) {
