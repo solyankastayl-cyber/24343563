@@ -350,6 +350,23 @@ const FractalTerminal = () => {
             onFocusChange={setFocus}
             loading={isLoading}
           />
+          
+          {/* BLOCK U3: Data Status Indicator */}
+          <div className="mt-2 flex items-center gap-4">
+            <DataStatusIndicator 
+              status={focusError ? 'error' : focusLoading ? 'loading' : 'unknown'}
+              meta={meta}
+              matchesCount={matchesCount}
+              quality={diagnostics?.quality}
+              coverage={diagnostics?.coverage}
+            />
+            {meta && (
+              <span className="text-xs text-slate-400">
+                Window: {meta.windowLen}d · Aftermath: {meta.aftermathDays}d · 
+                Matches: {matchesCount} · Sample: {diagnostics?.sampleSize || matchesCount}
+              </span>
+            )}
+          </div>
         </div>
         
         {/* Focus Info Panel */}
