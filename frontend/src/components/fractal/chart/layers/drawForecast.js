@@ -230,17 +230,20 @@ export function drawForecast(
   ctx.stroke();
   ctx.restore();
 
-  // === 6. TAIL FLOOR MARKER (UPGRADED) ===
+  // === 6. TAIL RISK MARKER (Human-friendly label) ===
+  // Shows "Worst-case (5%)" instead of cryptic "P95 Tail Risk"
   if (forecast.tailFloor && forecast.tailFloor > 0) {
     const tailY = y(forecast.tailFloor);
+    const tailPrice = Math.round(forecast.tailFloor);
+    const formattedPrice = "$" + tailPrice.toLocaleString("en-US");
     
     // Only draw if within visible range
     if (tailY > marginTop && tailY < canvasHeight - marginBottom) {
       ctx.save();
       
-      // Thicker dashed line
-      ctx.strokeStyle = "rgba(200, 0, 0, 0.7)";
-      ctx.lineWidth = 2;
+      // Dashed risk line
+      ctx.strokeStyle = "rgba(200, 0, 0, 0.6)";
+      ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
       ctx.moveTo(xRightAnchor, tailY);
@@ -250,24 +253,20 @@ export function drawForecast(
       // Red dot at forecast start
       ctx.beginPath();
       ctx.arc(xRightAnchor, tailY, 4, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(200, 0, 0, 0.9)";
+      ctx.fillStyle = "rgba(200, 0, 0, 0.85)";
       ctx.fill();
       
-      // Label "P95 Tail Risk"
-      ctx.fillStyle = "rgba(200, 0, 0, 0.85)";
-      ctx.font = "bold 9px system-ui";
+      // Human-readable label: "Worst-case (5%): $56,636"
+      ctx.fillStyle = "rgba(180, 0, 0, 0.9)";
+      ctx.font = "bold 10px system-ui";
       ctx.textAlign = "left";
-      ctx.fillText("P95 Tail Risk", xRightAnchor + 10, tailY - 5);
+      ctx.fillText("Worst-case (5%):", xRightAnchor + 10, tailY - 5);
       
-      // Price value at end
-      ctx.textAlign = "right";
-      ctx.font = "9px system-ui";
-      ctx.fillStyle = "rgba(200, 0, 0, 0.7)";
-      ctx.fillText(
-        forecast.tailFloor.toLocaleString(undefined, { maximumFractionDigits: 0 }),
-        dayToX(N) - 4,
-        tailY + 12
-      );
+      // Price value - prominent
+      ctx.font = "bold 11px system-ui";
+      ctx.fillStyle = "rgba(180, 0, 0, 0.95)";
+      ctx.fillText(formattedPrice, xRightAnchor + 112, tailY - 5);
+      
       ctx.restore();
     }
   }
