@@ -717,68 +717,53 @@ const styles = {
     marginTop: 8,
   },
 };
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 2,
-  },
-  metricLabel: {
-    fontSize: 9,
-    color: '#888',
-    textTransform: 'uppercase',
-  },
-  metricValue: {
-    fontSize: 12,
-    fontWeight: 600,
-    fontFamily: 'monospace',
-  },
-  flagsRow: {
-    display: 'flex',
-    gap: 6,
-    marginTop: 10,
-    flexWrap: 'wrap',
-  },
-  flag: {
-    padding: '3px 8px',
-    backgroundColor: '#fef3c7',
-    border: '1px solid #f59e0b',
-    borderRadius: 4,
-    fontSize: 9,
-    fontWeight: 600,
-    color: '#b45309',
-  },
-  perfectMatch: {
-    marginTop: 10,
-    padding: '4px 12px',
-    backgroundColor: '#dcfce7',
-    border: '1px solid #22c55e',
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 600,
-    color: '#166534',
-    textAlign: 'center',
-  },
-};
 
 /**
- * BLOCK 73.4 — Interactive Match Picker
+ * BLOCK 73.4 — Interactive Match Picker (UX REFACTOR)
  * 
- * Shows top matches as clickable chips.
- * Clicking switches the replay line and recalculates divergence.
+ * Human-readable historical match selector.
+ * Shows full phase names instead of abbreviations.
  */
+
+// Phase mapping for human-readable labels
+const PHASE_MAP = {
+  ACC: { label: 'Accumulation', color: 'bg-blue-100 text-blue-700', bgColor: '#dbeafe', textColor: '#1d4ed8' },
+  ACCUMULATION: { label: 'Accumulation', color: 'bg-blue-100 text-blue-700', bgColor: '#dbeafe', textColor: '#1d4ed8' },
+  DIS: { label: 'Distribution', color: 'bg-yellow-100 text-yellow-700', bgColor: '#fef3c7', textColor: '#b45309' },
+  DISTRIBUTION: { label: 'Distribution', color: 'bg-yellow-100 text-yellow-700', bgColor: '#fef3c7', textColor: '#b45309' },
+  REC: { label: 'Recovery', color: 'bg-green-100 text-green-700', bgColor: '#dcfce7', textColor: '#166534' },
+  RECOVERY: { label: 'Recovery', color: 'bg-green-100 text-green-700', bgColor: '#dcfce7', textColor: '#166534' },
+  MAR: { label: 'Markdown', color: 'bg-red-100 text-red-700', bgColor: '#fee2e2', textColor: '#dc2626' },
+  MARKDOWN: { label: 'Markdown', color: 'bg-red-100 text-red-700', bgColor: '#fee2e2', textColor: '#dc2626' },
+  MARKUP: { label: 'Markup', color: 'bg-emerald-100 text-emerald-700', bgColor: '#d1fae5', textColor: '#059669' },
+};
+
+function getPhaseInfo(phase) {
+  return PHASE_MAP[phase] || { label: phase, bgColor: '#f4f4f5', textColor: '#52525b' };
+}
+
 function MatchPicker({ matches, selectedId, primaryId, onSelect, loading }) {
   const topMatches = matches.slice(0, 5);
   
   return (
-    <div style={matchPickerStyles.container}>
-      <div style={matchPickerStyles.label}>
-        <span style={matchPickerStyles.labelText}>SELECT REPLAY</span>
-        {loading && <span style={matchPickerStyles.loading}>Loading...</span>}
+    <div style={matchPickerStyles.container} data-testid="match-picker">
+      {/* Header with explanation */}
+      <div style={matchPickerStyles.header}>
+        <div style={matchPickerStyles.label}>
+          <span style={matchPickerStyles.labelText}>Select Historical Match</span>
+          {loading && <span style={matchPickerStyles.loading}>Loading...</span>}
+        </div>
+        <div style={matchPickerStyles.hint}>
+          Historical periods that match current market structure
+        </div>
       </div>
+      
+      {/* Match chips */}
       <div style={matchPickerStyles.chips}>
         {topMatches.map((match, idx) => {
           const isSelected = match.id === selectedId;
           const isPrimary = match.id === primaryId;
+          const phaseInfo = getPhaseInfo(match.phase);
           
           return (
             <button
@@ -787,17 +772,37 @@ function MatchPicker({ matches, selectedId, primaryId, onSelect, loading }) {
               onClick={() => onSelect(match.id)}
               style={{
                 ...matchPickerStyles.chip,
-                backgroundColor: isSelected ? '#000' : (isPrimary ? '#f0fdf4' : '#fff'),
-                color: isSelected ? '#fff' : '#000',
-                borderColor: isSelected ? '#000' : (isPrimary ? '#22c55e' : '#e6e6e6'),
-                fontWeight: isSelected ? 600 : 400,
+                backgroundColor: isSelected ? '#1f2937' : (isPrimary ? '#f0fdf4' : '#fff'),
+                color: isSelected ? '#fff' : '#1f2937',
+                borderColor: isSelected ? '#1f2937' : (isPrimary ? '#22c55e' : '#e5e7eb'),
               }}
             >
               <span style={matchPickerStyles.chipRank}>#{idx + 1}</span>
               <span style={matchPickerStyles.chipDate}>{match.id}</span>
               <span style={{
                 ...matchPickerStyles.chipSim,
-                color: isSelected ? 'rgba(255,255,255,0.7)' : '#888'
+                color: isSelected ? 'rgba(255,255,255,0.7)' : '#6b7280'
+              }}>
+                {(match.similarity * 100).toFixed(0)}%
+              </span>
+              {/* Full phase name instead of abbreviation */}
+              <span style={{
+                ...matchPickerStyles.chipPhase,
+                backgroundColor: isSelected ? 'rgba(255,255,255,0.15)' : phaseInfo.bgColor,
+                color: isSelected ? '#fff' : phaseInfo.textColor,
+              }}>
+                {phaseInfo.label}
+              </span>
+              {isPrimary && !isSelected && (
+                <span style={matchPickerStyles.primaryBadge}>Best Match</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
               }}>
                 {(match.similarity * 100).toFixed(0)}%
               </span>
