@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-SPX Drift Intelligence Backend Testing
-Testing B6.3 implementation for LIVE vs Vintage cohorts comparison
+System Status Panel Backend Testing
+Testing /api/fractal/v2.1/terminal endpoint and phaseSnapshot data
 """
 
 import requests
@@ -9,8 +9,8 @@ import json
 import sys
 from datetime import datetime
 
-class SPXDriftTester:
-    def __init__(self, base_url="https://regime-intelligence.preview.emergentagent.com"):
+class SystemStatusPanelTester:
+    def __init__(self, base_url="https://fractal-core-branch.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
