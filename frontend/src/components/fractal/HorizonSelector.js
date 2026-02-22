@@ -1,10 +1,12 @@
 /**
  * BLOCK 70.2 STEP 2 — HorizonSelector 2.0
+ * UX REFACTOR — Human-readable horizon selection
  * 
  * Real horizon control with:
  * - Tier color coding (TIMING/TACTICAL/STRUCTURE)
  * - Match count preview
  * - Active state indication
+ * - Clear explanation of what horizon means
  */
 
 import React from 'react';
@@ -18,9 +20,19 @@ export const HorizonSelector = ({
   className = ''
 }) => {
   return (
-    <div className={`flex flex-col gap-2 ${className}`} data-testid="horizon-selector">
+    <div className={`flex flex-col gap-3 ${className}`} data-testid="horizon-selector">
+      {/* Explanation header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-700">Projection Horizon</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Select how many days ahead the projection is calculated
+          </p>
+        </div>
+      </div>
+      
       {/* Pills row */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+      <div className="flex gap-1.5 p-1.5 bg-slate-100 rounded-xl">
         {HORIZONS.map(h => {
           const isActive = focus === h.key;
           const count = matchesCounts[h.key];
@@ -32,7 +44,7 @@ export const HorizonSelector = ({
               onClick={() => onFocusChange(h.key)}
               disabled={loading}
               className={`
-                relative px-3 py-2 rounded-md text-sm font-medium transition-all
+                relative px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex-1
                 ${isActive 
                   ? 'bg-white text-slate-900 shadow-sm' 
                   : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'}
@@ -42,7 +54,7 @@ export const HorizonSelector = ({
             >
               {/* Tier indicator bar */}
               <div 
-                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full transition-opacity"
+                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full transition-opacity"
                 style={{ 
                   backgroundColor: tierColor,
                   opacity: isActive ? 1 : 0.3
@@ -50,7 +62,7 @@ export const HorizonSelector = ({
               />
               
               {/* Label */}
-              <span className="block">{h.label}</span>
+              <span className="block font-semibold">{h.label}</span>
               
               {/* Match count (if available) */}
               {count !== undefined && (
@@ -63,23 +75,23 @@ export const HorizonSelector = ({
         })}
       </div>
       
-      {/* Tier label */}
+      {/* Tier legend with explanations */}
       <div className="flex items-center justify-between px-2 text-xs">
-        <span className="text-slate-400">
-          {getTierLabel(HORIZONS.find(h => h.key === focus)?.tier)}
+        <span className="text-slate-500 font-medium">
+          {getTierLabel(HORIZONS.find(h => h.key === focus)?.tier)} View
         </span>
-        <div className="flex gap-3">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTierColor('TIMING') }}/>
-            <span className="text-slate-400">Timing</span>
+        <div className="flex gap-4">
+          <span className="flex items-center gap-1.5" title="Short-term entry timing (7-14 days)">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('TIMING') }}/>
+            <span className="text-slate-500">Timing (Entry)</span>
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTierColor('TACTICAL') }}/>
-            <span className="text-slate-400">Tactical</span>
+          <span className="flex items-center gap-1.5" title="Medium-term position management (30-90 days)">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('TACTICAL') }}/>
+            <span className="text-slate-500">Tactical (Position)</span>
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTierColor('STRUCTURE') }}/>
-            <span className="text-slate-400">Structure</span>
+          <span className="flex items-center gap-1.5" title="Long-term structural bias (180-365 days)">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTierColor('STRUCTURE') }}/>
+            <span className="text-slate-500">Structure (Bias)</span>
           </span>
         </div>
       </div>
@@ -92,7 +104,7 @@ export const HorizonSelector = ({
  */
 export const HorizonPills = ({ focus, onFocusChange, loading = false }) => {
   return (
-    <div className="flex gap-1" data-testid="horizon-pills">
+    <div className="flex gap-1.5" data-testid="horizon-pills">
       {HORIZONS.map(h => {
         const isActive = focus === h.key;
         return (
@@ -101,7 +113,7 @@ export const HorizonPills = ({ focus, onFocusChange, loading = false }) => {
             onClick={() => onFocusChange(h.key)}
             disabled={loading}
             className={`
-              px-2 py-1 rounded text-xs font-medium transition-colors
+              px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
               ${isActive 
                 ? 'bg-slate-800 text-white' 
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}
