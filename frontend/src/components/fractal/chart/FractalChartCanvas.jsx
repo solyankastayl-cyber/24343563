@@ -236,9 +236,9 @@ export function FractalChartCanvas({
       const step = plotW / (chart.candles.length - 1);
       const index = Math.round((mx - margins.left) / step);
       
-      // U4: Calculate forecast zone boundaries
+      // U4: Calculate forecast zone boundaries (match drawHybridForecast)
       const xRightAnchor = margins.left + plotW;
-      const forecastZoneWidth = Math.min(plotW * 0.55, 380) - 70;
+      const forecastZoneWidth = Math.min(plotW * 0.55, 420) - 50;
 
       // U4: Check if cursor is in forecast zone
       if (mx > xRightAnchor && mx < xRightAnchor + forecastZoneWidth && forecast) {
