@@ -1,10 +1,10 @@
 /**
- * UNIFIED CONTROL ROW v2 — Clean, Centered Design
+ * UNIFIED CONTROL ROW v3 — Clean Single-Row Design
  * 
  * Structure:
- * [ Signal Status with Icon + Tooltip ] | [ Mode Tabs CENTERED ] | [ Horizon Tabs ]
+ * [ PRIMARY Signal ] [ Secondary Icons: Confidence | Phase | Risk ] | [ Mode Tabs ] | [ Horizon Tabs ]
  * 
- * Larger, cleaner, professional look
+ * One main status, three compact secondary indicators
  */
 
 import React, { useState } from 'react';
@@ -15,15 +15,15 @@ import {
   TrendingDown, 
   AlertTriangle,
   Activity,
-  Zap,
   Target,
-  Shield
+  Shield,
+  CircleDot
 } from 'lucide-react';
 
 // Horizons config
 const HORIZONS = ['7d', '14d', '30d', '90d', '180d', '365d'];
 
-// Mode config - renamed for clarity
+// Mode config
 const MODES = [
   { key: 'price', label: 'Synthetic', description: 'AI model projection based on current structure' },
   { key: 'replay', label: 'Replay', description: 'Historical fractal pattern matching' },
@@ -32,166 +32,163 @@ const MODES = [
 ];
 
 /**
- * Signal Badge with Icon and Tooltip
+ * Primary Signal — Main status badge
  */
-function SignalBadge({ signal, confidence, marketMode, risk, horizon }) {
-  const [showTooltip, setShowTooltip] = useState(false);
+function PrimarySignal({ signal, risk }) {
+  // If CRISIS - show crisis as primary
+  const isCrisis = risk === 'CRISIS';
   
-  // Signal config
-  const signalConfig = {
+  const configs = {
     BUY: { 
       icon: TrendingUp, 
-      color: 'bg-emerald-500', 
-      textColor: 'text-emerald-700',
-      bgLight: 'bg-emerald-50',
-      border: 'border-emerald-200',
-      description: 'Bullish signal - favorable conditions for entry'
+      bg: 'bg-emerald-500',
+      label: 'BUY'
     },
     SELL: { 
       icon: TrendingDown, 
-      color: 'bg-red-500', 
-      textColor: 'text-red-700',
-      bgLight: 'bg-red-50',
-      border: 'border-red-200',
-      description: 'Bearish signal - consider reducing exposure'
+      bg: 'bg-red-500',
+      label: 'SELL'
     },
     HOLD: { 
       icon: Pause, 
-      color: 'bg-amber-500', 
-      textColor: 'text-amber-700',
-      bgLight: 'bg-amber-50',
-      border: 'border-amber-200',
-      description: 'Neutral signal - wait for clarity before action'
+      bg: 'bg-amber-500',
+      label: 'HOLD'
     },
+    CRISIS: {
+      icon: AlertTriangle,
+      bg: 'bg-red-600',
+      label: 'CRISIS'
+    }
   };
   
-  const config = signalConfig[signal] || signalConfig.HOLD;
+  const config = isCrisis ? configs.CRISIS : (configs[signal] || configs.HOLD);
   const Icon = config.icon;
   
-  // Confidence description
-  const confidenceDesc = {
-    High: 'Strong conviction based on multiple confirming factors',
-    Medium: 'Moderate conviction with some conflicting signals',
-    Low: 'Low conviction - high uncertainty in current conditions'
-  };
-  
-  // Market mode description
-  const modeDesc = {
-    ACCUMULATION: 'Smart money accumulating - potential bottom formation',
-    DISTRIBUTION: 'Smart money distributing - potential top formation',
-    MARKUP: 'Trending upward - bullish momentum phase',
-    MARKDOWN: 'Trending downward - bearish momentum phase',
-    RECOVERY: 'Transitioning from bearish to neutral/bullish',
-  };
-  
-  // Risk description
-  const riskDesc = {
-    CRISIS: 'Extreme volatility - maximum caution advised',
-    HIGH: 'Elevated risk environment - reduce position sizes',
-    Normal: 'Standard market conditions',
-    LOW: 'Low volatility - favorable for position building'
-  };
+  return (
+    <div 
+      className="flex items-center gap-2.5"
+      title={isCrisis ? 'Crisis mode - extreme volatility' : `Global signal: ${signal}`}
+    >
+      <div className={`
+        w-9 h-9 rounded-lg ${config.bg}
+        flex items-center justify-center
+      `}>
+        <Icon className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
+      </div>
+      <span className="text-base font-bold text-slate-800">
+        {config.label}
+      </span>
+    </div>
+  );
+}
 
+/**
+ * Secondary Indicator — Compact icon with tooltip
+ */
+function SecondaryIndicator({ icon: Icon, value, label, tooltip, variant = 'default' }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  // Color based on variant
+  const variantStyles = {
+    default: 'text-slate-400 hover:text-slate-600',
+    warning: 'text-amber-500 hover:text-amber-600',
+    danger: 'text-red-500 hover:text-red-600',
+    success: 'text-emerald-500 hover:text-emerald-600',
+  };
+  
   return (
     <div 
       className="relative"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {/* Main Badge */}
       <div className={`
-        flex items-center gap-3 px-4 py-3 rounded-xl cursor-help
-        ${config.bgLight} ${config.border} border
-        transition-all hover:shadow-md
+        flex items-center gap-1.5 px-2 py-1 rounded-md cursor-help
+        transition-colors ${variantStyles[variant]}
+        hover:bg-slate-100
       `}>
-        {/* Icon */}
-        <div className={`
-          w-10 h-10 rounded-lg ${config.color} 
-          flex items-center justify-center
-        `}>
-          <Icon className="w-5 h-5 text-white" strokeWidth={2.5} />
-        </div>
-        
-        {/* Text */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <span className={`text-lg font-bold ${config.textColor}`}>
-              {signal}
-            </span>
-            {/* Global indicator */}
-            <span className="text-[10px] px-1.5 py-0.5 bg-slate-200 text-slate-500 rounded font-medium">
-              GLOBAL
-            </span>
-          </div>
-          <span className="text-xs text-slate-500">
-            {confidence} · {marketMode}
-          </span>
-        </div>
-        
-        {/* Risk indicator */}
-        {risk && risk !== 'Normal' && (
-          <div className="flex items-center gap-1 ml-2 px-2 py-1 bg-red-100 rounded-md">
-            <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
-            <span className="text-xs font-semibold text-red-600">{risk}</span>
-          </div>
-        )}
+        <Icon className="w-4 h-4" strokeWidth={2} />
+        <span className="text-xs font-medium">{value}</span>
       </div>
       
       {/* Tooltip */}
       {showTooltip && (
         <div className="
-          absolute top-full left-0 mt-2 z-50
-          w-80 p-4 bg-slate-900 rounded-xl shadow-2xl
-          text-white text-sm
+          absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50
+          px-3 py-2 bg-slate-800 rounded-lg shadow-xl
+          text-white text-xs whitespace-nowrap
         ">
-          <div className="space-y-3">
-            {/* Signal */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Icon className="w-4 h-4" />
-                <span className="font-semibold">{signal} Signal</span>
-                <span className="text-[10px] px-1.5 py-0.5 bg-slate-700 rounded">Global</span>
-              </div>
-              <p className="text-slate-300 text-xs">{config.description}</p>
-              <p className="text-slate-400 text-[10px] mt-1 italic">
-                Signal is aggregated across all horizons and does not change with horizon selection.
-              </p>
-            </div>
-            
-            {/* Confidence */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Target className="w-4 h-4 text-blue-400" />
-                <span className="font-semibold">Confidence: {confidence}</span>
-              </div>
-              <p className="text-slate-300 text-xs">{confidenceDesc[confidence]}</p>
-            </div>
-            
-            {/* Market Mode */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Activity className="w-4 h-4 text-purple-400" />
-                <span className="font-semibold">Phase: {marketMode}</span>
-              </div>
-              <p className="text-slate-300 text-xs">{modeDesc[marketMode] || 'Current market phase'}</p>
-            </div>
-            
-            {/* Risk */}
-            {risk && (
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Shield className="w-4 h-4 text-amber-400" />
-                  <span className="font-semibold">Risk: {risk}</span>
-                </div>
-                <p className="text-slate-300 text-xs">{riskDesc[risk] || 'Current risk level'}</p>
-              </div>
-            )}
-          </div>
-          
-          {/* Arrow */}
-          <div className="absolute -top-2 left-6 w-4 h-4 bg-slate-900 rotate-45" />
+          <div className="font-semibold mb-0.5">{label}</div>
+          <div className="text-slate-300">{tooltip}</div>
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45" />
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Status Block — Primary + Secondary indicators
+ */
+function StatusBlock({ signal, confidence, marketMode, risk }) {
+  // Confidence variant
+  const confVariant = confidence === 'Low' ? 'warning' : confidence === 'High' ? 'success' : 'default';
+  const confTooltip = {
+    High: 'Strong conviction across indicators',
+    Medium: 'Moderate certainty',
+    Low: 'High uncertainty - proceed with caution'
+  };
+  
+  // Phase variant
+  const phaseVariant = ['MARKDOWN', 'DISTRIBUTION'].includes(marketMode) ? 'warning' : 'default';
+  const phaseTooltip = {
+    ACCUMULATION: 'Smart money building positions',
+    DISTRIBUTION: 'Smart money reducing exposure',
+    MARKUP: 'Bullish trend in progress',
+    MARKDOWN: 'Bearish trend in progress',
+    RECOVERY: 'Market recovering from lows'
+  };
+  
+  // Risk variant (only show if not Normal and not CRISIS - CRISIS shown as primary)
+  const showRiskIndicator = risk && risk !== 'Normal' && risk !== 'CRISIS';
+  const riskVariant = risk === 'HIGH' ? 'danger' : 'warning';
+  
+  return (
+    <div className="flex items-center gap-4">
+      {/* Primary Signal */}
+      <PrimarySignal signal={signal} risk={risk} />
+      
+      {/* Divider */}
+      <div className="w-px h-8 bg-slate-200" />
+      
+      {/* Secondary Indicators */}
+      <div className="flex items-center gap-1">
+        <SecondaryIndicator 
+          icon={Target}
+          value={confidence}
+          label="Confidence"
+          tooltip={confTooltip[confidence] || 'Model confidence level'}
+          variant={confVariant}
+        />
+        
+        <SecondaryIndicator 
+          icon={Activity}
+          value={marketMode}
+          label="Market Phase"
+          tooltip={phaseTooltip[marketMode] || 'Current market cycle phase'}
+          variant={phaseVariant}
+        />
+        
+        {showRiskIndicator && (
+          <SecondaryIndicator 
+            icon={Shield}
+            value={risk}
+            label="Risk Level"
+            tooltip="Elevated volatility environment"
+            variant={riskVariant}
+          />
+        )}
+      </div>
     </div>
   );
 }
