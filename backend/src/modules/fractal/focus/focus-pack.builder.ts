@@ -853,6 +853,126 @@ function buildNormalizedSeriesFromUnified(
   const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : basePrice * 0.8;
   const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : basePrice * 1.2;
   
+
+
+// ═══════════════════════════════════════════════════════════════
+// U6 — SCENARIO PACK BUILDER
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Build Scenario Pack for frontend Scenarios 2.0
+ * 
+ * Single source of truth for Bear/Base/Bull scenarios
+ * Computed from historical matches distribution
+ */
+function buildScenarioPack(
+  overlay: OverlayPack,
+  basePrice: number,
+  horizonDays: number,
+  focus: string,
+  asOf: string,
+  unifiedPath: UnifiedPath,
+  primaryMatch: any
+): ScenarioPack {
+  const dist = overlay.distributionSeries;
+  const stats = overlay.stats;
+  const sampleSize = stats.sampleSize;
+  
+  // Determine data status
+  let dataStatus: 'REAL' | 'FALLBACK' = 'REAL';
+  let fallbackReason: string | undefined;
+  
+  if (sampleSize < 5) {
+    dataStatus = 'FALLBACK';
+    fallbackReason = 'insufficient_sample';
+  } else if (stats.hitRate === 0 || stats.hitRate === 1) {
+    dataStatus = 'FALLBACK';
+    fallbackReason = 'degenerate_distribution';
+  }
+  
+  // Get terminal returns from distribution (last point = end of horizon)
+  const lastIdx = dist.p50.length - 1;
+  const p10Return = lastIdx >= 0 ? dist.p10[lastIdx] : -0.20;
+  const p50Return = lastIdx >= 0 ? dist.p50[lastIdx] : 0;
+  const p90Return = lastIdx >= 0 ? dist.p90[lastIdx] : 0.15;
+  
+  // Calculate target prices: basePrice * (1 + return)
+  const p10Target = Math.round(basePrice * (1 + p10Return));
+  const p50Target = Math.round(basePrice * (1 + p50Return));
+  const p90Target = Math.round(basePrice * (1 + p90Return));
+  
+  // Outcome probabilities from historical matches
+  const allReturns = overlay.matches.map(m => m.return);
+  const positiveCount = allReturns.filter(r => r > 0).length;
+  const probUp = allReturns.length > 0 ? positiveCount / allReturns.length : 0.5;
+  const probDown = 1 - probUp;
+  
+  // Risk metrics
+  const avgMaxDD = stats.avgMaxDD || 0;
+  
+  // Tail risk P95 - calculate from match returns
+  const sortedReturns = [...allReturns].sort((a, b) => a - b);
+  const p95Idx = Math.floor(sortedReturns.length * 0.05);
+  const tailRiskP95 = sortedReturns[p95Idx] || p10Return;
+  
+  // Determine model based on presence of replay
+  let model: ScenarioModel = 'synthetic';
+  if (unifiedPath.replayPath && unifiedPath.replayPath.length > 0) {
+    model = 'hybrid';
+  }
+  
+  // Build scenario cases for frontend
+  const horizonLabel = `+${horizonDays}d`;
+  const cases: ScenarioCase[] = [
+    {
+      label: 'Bear',
+      percentile: 'P10',
+      return: Math.round(p10Return * 1000) / 1000,
+      targetPrice: p10Target,
+      horizonLabel,
+    },
+    {
+      label: 'Base',
+      percentile: 'P50',
+      return: Math.round(p50Return * 1000) / 1000,
+      targetPrice: p50Target,
+      horizonLabel,
+    },
+    {
+      label: 'Bull',
+      percentile: 'P90',
+      return: Math.round(p90Return * 1000) / 1000,
+      targetPrice: p90Target,
+      horizonLabel,
+    },
+  ];
+  
+  return {
+    horizonDays,
+    asOfDate: asOf.split('T')[0],
+    basePrice: Math.round(basePrice),
+    returns: {
+      p10: Math.round(p10Return * 1000) / 1000,
+      p50: Math.round(p50Return * 1000) / 1000,
+      p90: Math.round(p90Return * 1000) / 1000,
+    },
+    targets: {
+      p10: p10Target,
+      p50: p50Target,
+      p90: p90Target,
+    },
+    probUp: Math.round(probUp * 1000) / 1000,
+    probDown: Math.round(probDown * 1000) / 1000,
+    avgMaxDD: Math.round(avgMaxDD * 1000) / 1000,
+    tailRiskP95: Math.round(tailRiskP95 * 1000) / 1000,
+    sampleSize,
+    dataStatus,
+    fallbackReason,
+    model,
+    cases,
+  };
+}
+
   const percentPadding = (maxPercent - minPercent) * 0.15;
   const pricePadding = (maxPrice - minPrice) * 0.15;
   
