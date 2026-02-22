@@ -178,6 +178,72 @@ function ForecastTooltip({ day, forecastData, currentPrice, horizonDays }) {
   );
 }
 
+/**
+ * C) Tail Risk Tooltip — Human-readable explanation
+ * Shows "Worst-case (5%)" with context: horizon, sample size, data source
+ */
+function TailRiskTooltip({ data, position }) {
+  if (!data) return null;
+  
+  const { price, horizon, sampleSize, dataMode } = data;
+  const formattedPrice = "$" + Math.round(price).toLocaleString("en-US");
+  
+  return (
+    <div
+      style={{
+        position: "fixed",
+        left: position.x + 16,
+        top: position.y - 10,
+        background: "#fff",
+        border: "1px solid #fca5a5",
+        padding: "12px 14px",
+        fontSize: 12,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        borderRadius: 8,
+        minWidth: 220,
+        maxWidth: 280,
+        zIndex: 1000,
+        pointerEvents: "none"
+      }}
+      data-testid="tail-risk-tooltip"
+    >
+      <div style={{ fontWeight: 700, marginBottom: 8, color: "#b91c1c", fontSize: 13 }}>
+        Worst-case (5%): {formattedPrice}
+      </div>
+      
+      <div style={{ color: "#666", fontSize: 11, lineHeight: 1.5, marginBottom: 10 }}>
+        This is the price level below which results fall in approximately 5% of the worst cases for this horizon.
+      </div>
+      
+      <div style={{ display: "grid", gap: 4, fontSize: 11, borderTop: "1px solid #f0f0f0", paddingTop: 8 }}>
+        {horizon && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#888" }}>Horizon:</span>
+            <span style={{ fontWeight: 500 }}>{horizon}</span>
+          </div>
+        )}
+        {sampleSize != null && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#888" }}>Sample size:</span>
+            <span style={{ fontWeight: 500 }}>{sampleSize} matches</span>
+          </div>
+        )}
+        {dataMode && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#888" }}>Data:</span>
+            <span style={{ 
+              fontWeight: 600, 
+              color: dataMode === 'REAL' ? '#16a34a' : '#d97706'
+            }}>
+              {dataMode}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function FractalChartCanvas({ 
   chart, 
   forecast, 
