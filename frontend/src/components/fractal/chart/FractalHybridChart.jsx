@@ -882,41 +882,6 @@ const matchPickerStyles = {
     whiteSpace: 'nowrap',
   },
 };
-    borderRadius: 8,
-    cursor: 'pointer',
-    fontSize: 11,
-    transition: 'all 0.15s ease',
-    position: 'relative',
-  },
-  chipRank: {
-    fontWeight: 700,
-    fontSize: 10,
-  },
-  chipDate: {
-    fontFamily: 'monospace',
-    fontSize: 10,
-  },
-  chipSim: {
-    fontSize: 10,
-  },
-  chipPhase: {
-    fontSize: 8,
-    padding: '2px 4px',
-    borderRadius: 3,
-    fontWeight: 600,
-  },
-  primaryBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -4,
-    fontSize: 7,
-    padding: '1px 4px',
-    backgroundColor: '#22c55e',
-    color: '#fff',
-    borderRadius: 3,
-    fontWeight: 700,
-  },
-};
 
 /**
  * BLOCK 73.5.2 — Phase Filter Bar
@@ -926,6 +891,8 @@ const matchPickerStyles = {
  */
 function PhaseFilterBar({ phaseFilter, phaseStats, onClear }) {
   if (!phaseFilter?.active) return null;
+  
+  const phaseInfo = PHASE_MAP[phaseFilter.phaseType] || { label: phaseFilter.phaseType, bgColor: '#f4f4f5', textColor: '#52525b' };
   
   const phaseColors = {
     'ACCUMULATION': { bg: '#dcfce7', border: '#22c55e', text: '#166534' },
