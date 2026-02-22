@@ -605,6 +605,10 @@ class DailyRunTester:
         print("\n❌ Testing Error Handling...")
         self.test_invalid_asset()
         
+        # L4.2: Test AUTO_WARMUP functionality
+        print("\n🔥 Testing L4.2 AUTO_WARMUP Features...")
+        self.test_auto_warmup_functionality()
+        
         # Final results
         print("\n" + "=" * 70)
         print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} passed")
