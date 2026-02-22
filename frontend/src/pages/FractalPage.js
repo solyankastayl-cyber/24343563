@@ -483,17 +483,8 @@ const FractalTerminal = () => {
             </div>
           )}
 
-          {/* P1.4: Volatility Regime Card - Under Chart */}
-          {volatility && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-              <VolatilityCard volatility={volatility} />
-            </div>
-          )}
-
-          {/* P1.6: Sizing Breakdown - Full transparency */}
-          {sizing && (
-            <SizingBreakdown sizing={sizing} volatility={volatility} />
-          )}
+          {/* Advanced Panels (moved from main view - now in RiskBox) */}
+          {/* Detailed breakdowns kept for advanced users */}
 
           {/* BLOCK 74.1: Horizon Stack View */}
           {horizonStack && horizonStack.length > 0 && (
