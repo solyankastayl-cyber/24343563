@@ -853,7 +853,28 @@ function buildNormalizedSeriesFromUnified(
   const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : basePrice * 0.8;
   const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : basePrice * 1.2;
   
-
+  const percentPadding = (maxPercent - minPercent) * 0.15;
+  const pricePadding = (maxPrice - minPrice) * 0.15;
+  
+  return {
+    mode,
+    basePrice,
+    rawPath,
+    percentPath,
+    rawUpperBand,
+    rawLowerBand,
+    percentUpperBand,
+    percentLowerBand,
+    rawReplay,
+    percentReplay,
+    yRange: {
+      minPercent: Math.round((minPercent - percentPadding) * 10) / 10,
+      maxPercent: Math.round((maxPercent + percentPadding) * 10) / 10,
+      minPrice: Math.round(minPrice - pricePadding),
+      maxPrice: Math.round(maxPrice + pricePadding),
+    },
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════
 // U6 — SCENARIO PACK BUILDER
