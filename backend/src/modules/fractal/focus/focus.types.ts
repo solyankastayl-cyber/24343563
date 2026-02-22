@@ -14,6 +14,7 @@ import type { HorizonKey } from '../config/horizon.config.js';
 export interface FocusPackMeta {
   symbol: string;
   focus: HorizonKey;
+  horizon?: HorizonKey;  // U3: Explicit horizon field for frontend tracking
   windowLen: number;
   aftermathDays: number;
   topK: number;
