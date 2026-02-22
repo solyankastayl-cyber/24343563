@@ -690,7 +690,7 @@ export function FractalChartCanvas({
 
   return (
     <div style={{ position: "relative" }}>
-      <canvas ref={ref} style={{ cursor: "crosshair" }} />
+      <canvas ref={ref} style={{ cursor: tailRiskHover ? "help" : "crosshair" }} />
       {/* Historical data tooltip */}
       {hoverCandle && (
         <Tooltip candle={hoverCandle} sma={hoverSma} phase={hoverPhaseName} />
@@ -702,6 +702,13 @@ export function FractalChartCanvas({
           forecastData={forecastHoverData}
           currentPrice={currentPrice}
           horizonDays={horizonDays}
+        />
+      )}
+      {/* C) Tail Risk Tooltip */}
+      {tailRiskHover && (
+        <TailRiskTooltip 
+          data={tailRiskHover}
+          position={tailRiskTooltipPos}
         />
       )}
       {/* BLOCK 73.5.1: Phase Tooltip */}
