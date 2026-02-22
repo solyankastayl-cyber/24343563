@@ -339,85 +339,74 @@ const FractalTerminal = () => {
   const isLoading = focusLoading || terminalLoading;
   const tierColor = meta ? getTierColor(meta.tier) : '#6B7280';
 
+  // Extract signal info for control row
+  const signal = consensus?.bias?.toUpperCase() || 'HOLD';
+  const confidenceLevel = consensus?.confidence >= 0.7 ? 'High' 
+    : consensus?.confidence >= 0.4 ? 'Medium' 
+    : 'Low';
+  const marketMode = terminalData?.phaseSnapshot?.phase || 'Unknown';
+  const riskLevel = volatility?.regime === 'CRISIS' ? 'CRISIS'
+    : volatility?.regime === 'HIGH' ? 'HIGH'
+    : 'Normal';
+
   return (
     <div className="min-h-screen bg-slate-50" data-testid="fractal-terminal">
-      {/* Header */}
+      {/* Header - minimal */}
       <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold text-slate-900">Fractal Research Terminal</h1>
-              <span className="px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
-                {symbol}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* BLOCK U2: As-of Date Picker */}
-              <AsOfDatePicker 
-                asOf={asOf}
-                mode={mode}
-                onAsOfChange={setAsOf}
-                onModeChange={setMode}
-                lastCandle={terminalData?.lastCandle || '2026-02-20'}
-              />
-              <div className="text-xs text-slate-400">
-                v6 · Institutional Grade
-              </div>
-            </div>
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-bold text-slate-900">Fractal Terminal</h1>
+            <span className="px-2 py-0.5 bg-slate-100 rounded text-xs font-medium text-slate-600">
+              {symbol}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <AsOfDatePicker 
+              asOf={asOf}
+              mode={mode}
+              onAsOfChange={setAsOf}
+              onModeChange={setMode}
+              lastCandle={terminalData?.lastCandle || '2026-02-20'}
+            />
+            <span className="text-xs text-slate-400">v6</span>
           </div>
         </div>
       </header>
       
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-6">
-        {/* BLOCK U5: Human-friendly Signal Header */}
-        <SignalHeader 
-          consensus={consensus}
-          conflict={conflict}
-          volatility={volatility}
-          phaseSnapshot={terminalData?.phaseSnapshot}
-          diagnostics={diagnostics}
-          overlay={overlay}
-        />
-        
-        {/* BLOCK 70.2: Horizon Selector */}
-        <div className="mb-6">
-          <HorizonSelector 
-            focus={focus}
-            onFocusChange={setFocus}
-            loading={isLoading}
-          />
-        </div>
-        
-        {/* Chart Section */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-slate-800">Research Canvas</h2>
-            <div className="flex items-center gap-4">
-              <ChartModeSwitcher mode={chartMode} onModeChange={setChartMode} />
-            </div>
-          </div>
-          
-          {/* Chart Render based on mode (3 modes: price/replay/hybrid) */}
-          <div className="min-h-[450px]">
-            {isLoading ? (
-              <LoadingSkeleton />
-            ) : (
-              <>
-                {chartMode === 'price' && (
-                  <FractalMainChart 
-                    symbol={symbol} 
-                    width={1100} 
-                    height={420}
-                    focus={focus}
-                    focusPack={focusData}
-                  />
-                )}
-                
-                {chartMode === 'replay' && (
-                  <FractalOverlaySection 
-                    symbol={symbol}
-                    focus={focus}
+      {/* UNIFIED CONTROL ROW — Single compact row */}
+      <UnifiedControlRow
+        signal={signal}
+        confidence={confidenceLevel}
+        marketMode={marketMode}
+        risk={riskLevel}
+        chartMode={chartMode}
+        onModeChange={setChartMode}
+        focus={focus}
+        onFocusChange={setFocus}
+        loading={isLoading}
+      />
+      
+      {/* CHART — Full width, no padding waste */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="min-h-[480px]">
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : (
+            <>
+              {chartMode === 'price' && (
+                <FractalMainChart 
+                  symbol={symbol} 
+                  width={1200} 
+                  height={460}
+                  focus={focus}
+                  focusPack={focusData}
+                />
+              )}
+              
+              {chartMode === 'replay' && (
+                <FractalOverlaySection 
+                  symbol={symbol}
+                  focus={focus}
                     focusPack={focusData}
                   />
                 )}
