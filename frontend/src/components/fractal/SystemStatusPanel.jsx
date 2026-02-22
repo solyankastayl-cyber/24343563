@@ -138,9 +138,9 @@ export function SystemStatusPanel({
   
   className = ''
 }) {
-  // Extract phase info
-  const currentPhase = phaseSnapshot?.current || 'UNKNOWN';
-  const phaseStrength = phaseSnapshot?.strength || 0;
+  // Extract phase info (API returns 'phase' not 'current')
+  const currentPhase = phaseSnapshot?.phase || 'UNKNOWN';
+  const phaseStrength = phaseSnapshot?.strengthIndex || phaseSnapshot?.strength || 0;
   
   // Extract consensus data
   const consensusIndex = consensusPulse?.summary?.current || 50;
