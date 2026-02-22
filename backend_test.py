@@ -134,13 +134,13 @@ class FractalBackendTester:
 
 def main():
     """Main test execution"""
-    tester = FractalChartTester()
+    tester = FractalBackendTester()
     passed, total, results = tester.run_all_tests()
     
     # Save results
-    with open('/app/test_reports/fractal_chart_test_results.json', 'w') as f:
+    with open('/app/test_reports/fractal_backend_test_results.json', 'w') as f:
         json.dump({
-            "summary": f"Fractal Chart Margin & Forecast Zone Testing",
+            "summary": "Fractal UX Refactor - Backend API Testing", 
             "tests_passed": passed,
             "tests_total": total,
             "success_rate": f"{(passed/total*100):.1f}%" if total > 0 else "0%",
