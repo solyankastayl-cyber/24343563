@@ -440,9 +440,9 @@ const FractalTerminal = () => {
           </div>
 
           {/* U6: Scenario Box - Expected Outcomes */}
-          {!isLoading && focusData?.scenario && (
+          {!isLoading && scenario && (
             <div className="mt-6">
-              <ScenarioBox scenario={focusData.scenario} />
+              <ScenarioBox scenario={scenario} />
             </div>
           )}
 
