@@ -803,81 +803,85 @@ function MatchPicker({ matches, selectedId, primaryId, onSelect, loading }) {
     </div>
   );
 }
-              }}>
-                {(match.similarity * 100).toFixed(0)}%
-              </span>
-              <span style={{
-                ...matchPickerStyles.chipPhase,
-                backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : getPhaseColor(match.phase),
-                color: isSelected ? '#fff' : getPhaseTextColor(match.phase),
-              }}>
-                {match.phase.slice(0, 3).toUpperCase()}
-              </span>
-              {isPrimary && !isSelected && (
-                <span style={matchPickerStyles.primaryBadge}>AUTO</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function getPhaseColor(phase) {
-  const colors = {
-    'ACCUMULATION': '#dcfce7',
-    'RECOVERY': '#cffafe',
-    'DISTRIBUTION': '#fef3c7',
-    'MARKDOWN': '#fce7f3',
-  };
-  return colors[phase] || '#f4f4f5';
-}
-
-function getPhaseTextColor(phase) {
-  const colors = {
-    'ACCUMULATION': '#166534',
-    'RECOVERY': '#0891b2',
-    'DISTRIBUTION': '#b45309',
-    'MARKDOWN': '#9d174d',
-  };
-  return colors[phase] || '#444';
-}
 
 const matchPickerStyles = {
   container: {
-    padding: '12px 16px',
-    borderTop: '1px solid #EAEAEA',
-    backgroundColor: '#FAFAFA',
+    padding: '14px 18px',
+    borderTop: '1px solid #e5e7eb',
+    backgroundColor: '#fafafa',
+  },
+  header: {
+    marginBottom: 12,
   },
   label: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+    gap: 10,
+    marginBottom: 4,
   },
   labelText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
-    color: '#888',
-    letterSpacing: '0.5px',
+    color: '#374151',
+  },
+  hint: {
+    fontSize: 11,
+    color: '#9ca3af',
   },
   loading: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#8b5cf6',
     fontStyle: 'italic',
   },
   chips: {
     display: 'flex',
-    gap: 8,
+    gap: 10,
     flexWrap: 'wrap',
   },
   chip: {
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    padding: '6px 10px',
+    gap: 8,
+    padding: '8px 12px',
     border: '1px solid',
+    borderRadius: 10,
+    cursor: 'pointer',
+    fontSize: 12,
+    transition: 'all 0.15s ease',
+    position: 'relative',
+  },
+  chipRank: {
+    fontWeight: 700,
+    fontSize: 11,
+    color: '#6b7280',
+  },
+  chipDate: {
+    fontFamily: 'monospace',
+    fontSize: 11,
+    fontWeight: 500,
+  },
+  chipSim: {
+    fontSize: 11,
+  },
+  chipPhase: {
+    fontSize: 10,
+    padding: '3px 8px',
+    borderRadius: 5,
+    fontWeight: 500,
+  },
+  primaryBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -4,
+    fontSize: 8,
+    padding: '2px 6px',
+    backgroundColor: '#22c55e',
+    color: '#fff',
+    borderRadius: 4,
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+  },
+};
     borderRadius: 8,
     cursor: 'pointer',
     fontSize: 11,
